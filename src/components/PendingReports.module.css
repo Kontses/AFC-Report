@@ -1,0 +1,60 @@
+.container {
+    padding: 1.5rem;
+    margin-top: 2rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--foreground);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.listItem {
+    background: var(--input-bg);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 0.9rem;
+    color: var(--secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.syncBtn {
+    width: 100%;
+    padding: 1rem;
+    background: var(--success);
+    /* Keep green for sync success/action or maybe use primary? Let's use success for distinction or primary for consistency. User asked for Red/Blue. Let's stick to Primary (Red) or maybe a specific 'Action' color. The request said "Red as second color". Let's use Primary. */
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: background-color 0.2s;
+}
+
+.syncBtn:hover {
+    background: var(--primary-hover);
+}

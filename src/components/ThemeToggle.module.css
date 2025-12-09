@@ -1,0 +1,22 @@
+.toggle {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--foreground);
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.toggle:hover {
+    background: var(--card-bg);
+    border-color: var(--primary);
+}
+
+.label {
+    font-weight: 600;
+    font-size: 0.9rem;
+}

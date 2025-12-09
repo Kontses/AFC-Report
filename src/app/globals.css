@@ -1,21 +1,49 @@
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --primary: #0070f3;
-  --secondary: #666;
-  --error: #e00;
-  --success: #0a0;
-  --border: #eaeaea;
+  /* Default variables (Dark Theme by default) */
+  --transition-speed: 0.3s;
+  --background: #0b1120;
+  --foreground: #ffffff;
+  --primary: #e63946;
+  --primary-hover: #c92a37;
+  --secondary: #94a3b8;
+  --card-bg: #1e293b;
+  --input-bg: #0f172a;
+  --border: #334155;
+  --success: #10b981;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --primary: #3291ff;
-    --secondary: #888;
-    --border: #333;
-  }
+[data-theme='dark'] {
+  /* Same as root */
+  --background: #0b1120;
+  --foreground: #ffffff;
+  --primary: #e63946;
+  --primary-hover: #c92a37;
+  --secondary: #94a3b8;
+  --card-bg: #1e293b;
+  --input-bg: #0f172a;
+  --border: #334155;
+  --success: #10b981;
+}
+
+[data-theme='light'] {
+  --background: #e0f2fe;
+  /* Soft Light Blue */
+  --foreground: #0f172a;
+  /* Dark Blue Text */
+  --primary: #e63946;
+  /* Keep Red as requested second color in palette */
+  --primary-hover: #ef4444;
+  --secondary: #475569;
+  --card-bg: #ffffff;
+  --input-bg: #f1f5f9;
+  --border: #cbd5e1;
+  --success: #10b981;
+}
+
+/* Ensure inputs/selects have correct text color in both modes */
+select option {
+  background-color: var(--card-bg);
+  color: var(--foreground);
 }
 
 * {
@@ -33,7 +61,11 @@ body {
   min-height: 100vh;
 }
 
-input, select, textarea, button {
+input,
+select,
+textarea,
+button {
   font-family: inherit;
-  font-size: 16px; /* Prevents zoom on iOS */
+  font-size: 16px;
+  /* Prevents zoom on iOS */
 }

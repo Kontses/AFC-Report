@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { getLocalReports, markReportSynced, Report } from "../lib/storage";
 
+import styles from "./PendingReports.module.css";
+
 export default function PendingReports() {
     const [reports, setReports] = useState<Report[]>([]);
 
@@ -34,30 +36,26 @@ export default function PendingReports() {
     };
 
     if (reports.length === 0) {
-        return <div style={{ padding: '1rem', textAlign: 'center', color: '#888' }}>All reports synced.</div>;
+        return <div style={{ padding: '1rem', textAlign: 'center', color: '#64748b', fontSize: '0.9rem' }}>All local reports synced.</div>;
     }
 
     return (
-        <div style={{ padding: '1rem', borderTop: '1px solid #eaeaea', marginTop: '2rem' }}>
-            <h3>Pending Reports ({reports.length})</h3>
-            <ul style={{ listStyle: 'none', padding: 0, margin: '1rem 0' }}>
+        <div className={styles.container}>
+            <h3 className={styles.title}>
+                Pending Uploads
+                <span style={{ fontSize: '0.8em', background: 'var(--primary)', padding: '0.2em 0.6em', borderRadius: '4px' }}>
+                    {reports.length}
+                </span>
+            </h3>
+            <ul className={styles.list}>
                 {reports.map(r => (
-                    <li key={r.id} style={{ marginBottom: '0.5rem', fontSize: '0.9rem' }}>
-                        {r.reportedDate} - {r.device} @ {r.station}
+                    <li key={r.id} className={styles.listItem}>
+                        <span>{r.device} @ {r.station}</span>
+                        <span style={{ fontSize: '0.8em', opacity: 0.7 }}>{new Date(r.reportedDate).toLocaleDateString()}</span>
                     </li>
                 ))}
             </ul>
-            <button
-                onClick={handleSync}
-                style={{
-                    padding: '0.5rem 1rem',
-                    background: '#28a745',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                }}
-            >
+            <button onClick={handleSync} className={styles.syncBtn}>
                 Sync Now
             </button>
         </div>
