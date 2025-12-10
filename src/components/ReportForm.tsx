@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./ReportForm.module.css";
 import { saveReportLocal } from "../lib/storage";
 
@@ -18,11 +18,19 @@ export default function ReportForm() {
     assignedTo: "",
     finalResult: "OK",
     comments: "",
+    reportedDate: "", // stores the ISO or formatted string
   });
 
-  /* 
-  // Removed useEffect to avoid lint warning. Logic moved to handleChange.
-  */
+  const [autoTime, setAutoTime] = useState(true);
+
+  useEffect(() => {
+    // Load saved reporter from local storage
+    const savedReporter = localStorage.getItem("lastReporter");
+    if (savedReporter) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFormData(prev => ({ ...prev, reportBy: savedReporter }));
+    }
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -36,19 +44,78 @@ export default function ReportForm() {
         newData.repairProcess = "Cleaning Printer Sensor";
       }
 
+      // Save reporter to local storage immediately when changed
+      if (name === "reportBy") {
+        localStorage.setItem("lastReporter", value);
+      }
+
       return newData;
     });
   };
 
+  useEffect(() => {
+    // Initialize date if empty
+    if (!formData.reportedDate && autoTime) {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      setFormData(prev => ({ ...prev, reportedDate: now.toISOString().slice(0, 16) }));
+    }
+  }, []);
+
+  const handleAutoTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const isChecked = e.target.checked;
+    setAutoTime(isChecked);
+
+    if (isChecked) {
+      // Set current local time immediately
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      setFormData(prev => ({ ...prev, reportedDate: now.toISOString().slice(0, 16) }));
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Submitting report:", formData);
+
+    // Determine final timestamp
+    let finalDate = new Date();
+    if (!autoTime && formData.reportedDate) {
+      finalDate = new Date(formData.reportedDate);
+    }
+
+    // Format to Greek locale: d/M/yyyy h:mm tt
+    // Example: 9/12/2025 2:00 μμ
+    const formattedDate = finalDate.toLocaleString('el-GR', {
+      day: 'numeric',
+      month: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    }).replace('pm', 'μμ').replace('am', 'πμ');
+
+    const submissionData = {
+      ...formData,
+      reportedDate: formattedDate
+    };
+
+    console.log("Submitting report:", submissionData);
 
     try {
-      saveReportLocal(formData);
+      saveReportLocal(submissionData);
       alert("Report saved locally!");
-      // Reset form or redirect
-      setFormData(prev => ({ ...prev, tag: "", alarmCode: "", comments: "" })); // Keep user/station for convenience?
+      // Reset form (keep reporter, maybe station)
+      setFormData(prev => ({
+        ...prev,
+        tag: "",
+        alarmCode: "",
+        comments: "",
+        malfunction: "",
+        repairProcess: "",
+        // If autoTime is true, we don't need to reset reportedDate as it's generated on submit.
+        // If autoTime is false, maybe keep it or clear it? Clearing for now.
+        reportedDate: ""
+      }));
     } catch (error) {
       console.error("Failed to save", error);
       alert("Error saving report");
@@ -57,22 +124,60 @@ export default function ReportForm() {
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
-      <h2>Daily Report</h2>
 
       <div className={styles.group}>
         <label htmlFor="reportBy">Report By</label>
-        <input type="text" id="reportBy" name="reportBy" value={formData.reportBy} onChange={handleChange} required />
+        <select id="reportBy" name="reportBy" value={formData.reportBy} onChange={handleChange} required>
+          <option value="Emmanouil Kazantzoglou">Emmanouil Kazantzoglou</option>
+          <option value="Konstantinos Saltzoglou">Konstantinos Saltzoglou</option>
+          <option value="Dimitris Mpazakas">Dimitris Mpazakas</option>
+          <option value="Nikos Tsiagkas">Nikos Tsiagkas</option>
+          <option value="Kostantinos Andreadis">Kostantinos Andreadis</option>
+          <option value="Vassilis Kontses">Vassilis Kontses</option>
+        </select>
+      </div>
+
+      <div className={styles.group}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+          <label htmlFor="reportedDate" style={{ marginBottom: 0 }}>Date & Time</label>
+          <label style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '0.3rem', color: 'var(--primary)' }}>
+            <input
+              type="checkbox"
+              checked={autoTime}
+              onChange={handleAutoTimeChange}
+              style={{ width: 'auto', margin: 0 }}
+            />
+            Auto Mode
+          </label>
+        </div>
+        <input
+          type="datetime-local"
+          id="reportedDate"
+          name="reportedDate"
+          value={formData.reportedDate}
+          onChange={handleChange}
+          disabled={autoTime}
+          required={!autoTime}
+        />
       </div>
 
       <div className={styles.row}>
         <div className={styles.group}>
           <label htmlFor="station">Station</label>
           <select id="station" name="station" value={formData.station} onChange={handleChange} required>
-            <option value="">Select...</option>
             <option value="1(NRS)">1(NRS)</option>
             <option value="2(DMK)">2(DMK)</option>
             <option value="3(VNZ)">3(VNZ)</option>
-            {/* Add more stations */}
+            <option value="4(AGS)">4(AGS)</option>
+            <option value="5(SNT)">5(SNT)</option>
+            <option value="6(PNP)">6(PNP)</option>
+            <option value="7(PPF)">7(PPF)</option>
+            <option value="8(EFK)">8(EFK)</option>
+            <option value="9(FLM)">9(FLM)</option>
+            <option value="10(ANP)">10(ANP)</option>
+            <option value="11(MRT)">11(MRT)</option>
+            <option value="12(VLG)">12(VLG)</option>
+            <option value="13(NEL)">13(NEL)</option>
           </select>
         </div>
         <div className={styles.group}>
@@ -80,6 +185,9 @@ export default function ReportForm() {
           <select id="device" name="device" value={formData.device} onChange={handleChange}>
             <option value="ATIM">ATIM</option>
             <option value="GATE">GATE</option>
+            <option value="ATLAS">ATLAS</option>
+            <option value="CIT">CIT</option>
+            <option value="Other">Other</option>
           </select>
         </div>
       </div>
@@ -87,13 +195,15 @@ export default function ReportForm() {
       <div className={styles.row}>
         <div className={styles.group}>
           <label htmlFor="tag">Tag</label>
-          <input type="number" id="tag" name="tag" value={formData.tag} onChange={handleChange} required />
+          <input type="number" id="tag" name="tag" value={formData.tag} onChange={handleChange} min="1" max="19" required />
         </div>
         <div className={styles.group}>
           <label htmlFor="status">Status</label>
           <select id="status" name="status" value={formData.status} onChange={handleChange}>
             <option value="Solved">Solved</option>
-            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Rejected">Rejected</option>
+            <option value="Out Of Service">Out Of Service</option>
           </select>
         </div>
       </div>

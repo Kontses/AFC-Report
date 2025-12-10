@@ -5,19 +5,27 @@
 }
 
 .header {
-  padding: 2rem 0;
-  text-align: center;
+  padding: 1.5rem 0;
   margin-bottom: 2rem;
 }
 
+.headerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
 .header h1 {
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: 800;
   background: linear-gradient(to right, #fff, #94a3b8);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   letter-spacing: -0.05em;
+  margin: 0;
 }
 
 .main {

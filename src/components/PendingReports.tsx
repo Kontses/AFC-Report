@@ -10,6 +10,7 @@ export default function PendingReports() {
 
     useEffect(() => {
         // Load initial
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setReports(getLocalReports().filter(r => !r.synced));
 
         // Simple poll to refresh list if new reports are added (rudimentary sync)

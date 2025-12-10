@@ -8,8 +8,8 @@ export default function Home() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <h1>Metro Reports</h1>
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+        <div className={styles.headerContent}>
+          <h1>AFC Report</h1>
           <ThemeToggle />
         </div>
       </header>
