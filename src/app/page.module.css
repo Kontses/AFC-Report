@@ -20,7 +20,7 @@
 .header h1 {
   font-size: 1.8rem;
   font-weight: 800;
-  background: linear-gradient(to right, #fff, #94a3b8);
+  background: linear-gradient(to right, var(--foreground), var(--secondary));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
