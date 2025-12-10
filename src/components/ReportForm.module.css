@@ -61,10 +61,13 @@
 .form input:disabled,
 .form select:disabled,
 .form textarea:disabled {
-  opacity: 0.5; /* Dim the text and border */
+  opacity: 0.5;
+  /* Dim the text and border */
   cursor: not-allowed;
-  background-color: rgba(0, 0, 0, 0.2); /* Darken bg slightly in dark mode */
-  color: var(--secondary); /* Make text clearly gray/inactive */
+  background-color: rgba(0, 0, 0, 0.2);
+  /* Darken bg slightly in dark mode */
+  color: var(--secondary);
+  /* Make text clearly gray/inactive */
 }
 
 .form input:focus,
@@ -96,4 +99,35 @@
 
 .submitBtn:hover {
   background: var(--primary-hover);
+}
+
+.chipContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.chip {
+  padding: 0.5rem 1rem;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--secondary);
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.chip.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+.chip:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--foreground);
 }

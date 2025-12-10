@@ -16,7 +16,7 @@ export default function ReportForm() {
     impact: "",
     repairProcess: "",
     assignedTo: "TRAXIS ENGINEERING",
-    finalResult: "OK",
+    finalResult: ["OK"],
     comments: "",
     reportedDate: "", // stores the ISO or formatted string
   });
@@ -84,6 +84,19 @@ export default function ReportForm() {
     }
   };
 
+  const handleFinalResultToggle = (value: string) => {
+    setFormData(prev => {
+      const current = prev.finalResult;
+      if (current.includes(value)) {
+        // Remove if present, but prevent empty if desired? User didn't specify. allowing empty.
+        return { ...prev, finalResult: current.filter(item => item !== value) };
+      } else {
+        // Add
+        return { ...prev, finalResult: [...current, value] };
+      }
+    });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -106,6 +119,7 @@ export default function ReportForm() {
 
     const submissionData = {
       ...formData,
+      finalResult: formData.finalResult.join(", "), // Convert array to comma-separated string
       reportedDate: formattedDate
     };
 
@@ -122,8 +136,8 @@ export default function ReportForm() {
         comments: "",
         malfunction: "",
         repairProcess: "",
+        finalResult: ["OK"], // Reset to default
         // If autoTime is true, we don't need to reset reportedDate as it's generated on submit.
-        // If autoTime is false, maybe keep it or clear it? Clearing for now.
         reportedDate: ""
       }));
     } catch (error) {
@@ -396,14 +410,24 @@ export default function ReportForm() {
       </div>
 
       <div className={styles.group}>
-        <label htmlFor="finalResult">Final Result</label>
-        <select id="finalResult" name="finalResult" value={formData.finalResult} onChange={handleChange}>
-          <option value="OK">OK</option>
-          <option value="Only Accepts Banknotes">Only Accepts Banknotes</option>
-          <option value="Only Accepts Card">Only Accepts Card</option>
-          <option value="Only Accepts Coins">Only Accepts Coins</option>
-          <option value="Out of service">Out of service</option>
-        </select>
+        <label>Final Result</label>
+        <div className={styles.chipContainer}>
+          {[
+            "OK",
+            "Only Accepts Banknotes",
+            "Only Accepts Card",
+            "Only Accepts Coins",
+            "Out of service"
+          ].map(opt => (
+            <div
+              key={opt}
+              className={`${styles.chip} ${formData.finalResult.includes(opt) ? styles.active : ''}`}
+              onClick={() => handleFinalResultToggle(opt)}
+            >
+              {opt}
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className={styles.group}>
