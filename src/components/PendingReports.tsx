@@ -51,8 +51,10 @@ export default function PendingReports() {
             <ul className={styles.list}>
                 {reports.map(r => (
                     <li key={r.id} className={styles.listItem}>
-                        <span>{r.device} @ {r.station}</span>
-                        <span style={{ fontSize: '0.8em', opacity: 0.7 }}>{new Date(r.reportedDate).toLocaleDateString()}</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                            <span style={{ fontWeight: 500 }}>{r.station}, {r.device}, {r.tag}</span>
+                            <span style={{ fontSize: '0.8em', opacity: 0.7, marginTop: '0.2rem' }}>{r.reportedDate}</span>
+                        </div>
                     </li>
                 ))}
             </ul>
