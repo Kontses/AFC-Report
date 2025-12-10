@@ -349,7 +349,41 @@ export default function ReportForm() {
 
       <div className={styles.group}>
         <label htmlFor="repairProcess">Repair Process</label>
-        <input type="text" id="repairProcess" name="repairProcess" value={formData.repairProcess} onChange={handleChange} />
+        <input
+          type="text"
+          id="repairProcess"
+          name="repairProcess"
+          value={formData.repairProcess}
+          onChange={handleChange}
+          list="repairProcesses"
+        />
+        <datalist id="repairProcesses">
+          {[
+            "Acknowledged Alarm and Red Button",
+            "AFA002",
+            "Broken recycle",
+            "Clean Sim Card",
+            "Cleaning Printer delete css.bin Restart",
+            "Concentration call",
+            "Needs Conduent",
+            "Needs ΤΗΕΜΑ",
+            "Opening ATIM and closing",
+            "Put USB",
+            "Putting in service by SSUP",
+            "Putting the banknote payment in service",
+            "Reinstall Software",
+            "Removing the jammed banknotes and restart",
+            "Reset",
+            "Restart",
+            "Shutdown/Startup",
+            "Test Coin parts",
+            "Test the coin parts restart",
+            "Testing the receipt printer",
+            "Unplug X1"
+          ].map((item) => (
+            <option key={item} value={item} />
+          ))}
+        </datalist>
       </div>
 
       <div className={styles.group}>
