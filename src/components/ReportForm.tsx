@@ -30,6 +30,13 @@ export default function ReportForm() {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setFormData(prev => ({ ...prev, reportBy: savedReporter }));
     }
+
+    // Load saved station from local storage
+    const savedStation = localStorage.getItem("lastStation");
+    if (savedStation) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFormData(prev => ({ ...prev, station: savedStation }));
+    }
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -44,9 +51,12 @@ export default function ReportForm() {
         newData.repairProcess = "Cleaning Printer Sensor";
       }
 
-      // Save reporter to local storage immediately when changed
+      // Save persistent fields to local storage
       if (name === "reportBy") {
         localStorage.setItem("lastReporter", value);
+      }
+      if (name === "station") {
+        localStorage.setItem("lastStation", value);
       }
 
       return newData;
