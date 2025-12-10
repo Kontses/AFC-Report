@@ -6,8 +6,8 @@ import { saveReportLocal } from "../lib/storage";
 
 export default function ReportForm() {
   const [formData, setFormData] = useState({
-    reportBy: "",
-    station: "",
+    reportBy: "Emmanouil Kazantzoglou",
+    station: "1(NRS)",
     device: "ATIM",
     tag: "",
     status: "Solved",

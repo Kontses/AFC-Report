@@ -40,6 +40,18 @@ export default function PendingReports() {
         return <div style={{ padding: '1rem', textAlign: 'center', color: '#64748b', fontSize: '0.9rem' }}>All rights reserved © 2025 TRAXIS ENGINEERING.</div>;
     }
 
+    const formatDisplayDate = (dateStr: string) => {
+        // Check if it's an ISO string (e.g., 2025-12-10T...)
+        if (dateStr && dateStr.includes('T') && dateStr.includes('Z')) {
+            return new Date(dateStr).toLocaleString('el-GR', {
+                day: 'numeric', month: 'numeric', year: 'numeric',
+                hour: '2-digit', minute: '2-digit', hour12: true
+            }).replace('pm', 'μμ').replace('am', 'πμ');
+        }
+        // Otherwise assume it's already formatted
+        return dateStr;
+    };
+
     return (
         <div className={styles.container}>
             <h3 className={styles.title}>
@@ -53,7 +65,9 @@ export default function PendingReports() {
                     <li key={r.id} className={styles.listItem}>
                         <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
                             <span style={{ fontWeight: 500 }}>{r.station}, {r.device}, {r.tag}</span>
-                            <span style={{ fontSize: '0.8em', opacity: 0.7, marginTop: '0.2rem' }}>{r.reportedDate}</span>
+                            <span style={{ fontSize: '0.8em', opacity: 0.7, marginTop: '0.2rem' }}>
+                                {formatDisplayDate(r.reportedDate)}
+                            </span>
                         </div>
                     </li>
                 ))}
