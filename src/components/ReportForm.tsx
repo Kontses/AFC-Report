@@ -324,6 +324,30 @@ export default function ReportForm() {
       </div>
 
       <div className={styles.group}>
+        <label htmlFor="impact">Impact of Malfunction</label>
+        <input
+          type="text"
+          id="impact"
+          name="impact"
+          value={formData.impact}
+          onChange={handleChange}
+          list="impacts"
+          disabled={formData.device !== 'GATE'}
+          placeholder={formData.device !== 'GATE' ? "N/A" : ""}
+        />
+        <datalist id="impacts">
+          {[
+            "No Entry",
+            "No Entry No Exit",
+            "No Exit",
+            "Unauthorized Entry or Exit"
+          ].map((item) => (
+            <option key={item} value={item} />
+          ))}
+        </datalist>
+      </div>
+
+      <div className={styles.group}>
         <label htmlFor="repairProcess">Repair Process</label>
         <input type="text" id="repairProcess" name="repairProcess" value={formData.repairProcess} onChange={handleChange} />
       </div>
