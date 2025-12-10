@@ -15,7 +15,7 @@ export default function ReportForm() {
     malfunction: "",
     impact: "",
     repairProcess: "",
-    assignedTo: "",
+    assignedTo: "TRAXIS ENGINEERING",
     finalResult: "OK",
     comments: "",
     reportedDate: "", // stores the ISO or formatted string
@@ -229,7 +229,11 @@ export default function ReportForm() {
 
       <div className={styles.group}>
         <label htmlFor="assignedTo">Assigned To</label>
-        <input type="text" id="assignedTo" name="assignedTo" value={formData.assignedTo} onChange={handleChange} />
+        <select id="assignedTo" name="assignedTo" value={formData.assignedTo} onChange={handleChange}>
+          <option value="TRAXIS ENGINEERING">TRAXIS ENGINEERING</option>
+          <option value="THEMA">THEMA</option>
+          <option value="Conduent">Conduent</option>
+        </select>
       </div>
 
       <div className={styles.group}>
