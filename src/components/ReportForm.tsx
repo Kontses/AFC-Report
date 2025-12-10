@@ -41,16 +41,164 @@ export default function ReportForm() {
 
   // Auto-fill Rules
   const ALARM_RULES: Record<string, Partial<typeof formData>> = {
+    // ---------> COIN PARTS ALARMS <---------
     "MPP 104": {
       malfunction: "Coin Payment: Coinbox Full",
       repairProcess: "Needs ΤΗΕΜΑ",
       assignedTo: "THEMA",
-      status: "Only Accepts Coins",
+      status: "Rejected",
       finalResult: ["Only Accepts Banknotes", "Only Accepts Card"]
     },
+    "MPP 101": {
+      malfunction: "Coin Payment: Coinbox Failure",
+      repairProcess: "Test Coin parts",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "MPP 011": {
+      malfunction: "Coin Payment: Coin Acceptor Failure",
+      repairProcess: "Test Coin parts",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "MPP 105": {
+      malfunction: "Coin Payment: Unauthorized Cashbox Withdrawal",
+      repairProcess: "Needs ΤΗΕΜΑ",
+      assignedTo: "THEMA",
+      status: "Rejected",
+      finalResult: ["Only Accepts Banknotes", "Only Accepts Card"]
+    },
+    "MPP 214": {
+      malfunction: "Coin reserve 1: Exchanged outside of the procedure",
+      repairProcess: "Needs ΤΗΕΜΑ",
+      assignedTo: "THEMA",
+      status: "Rejected",
+      finalResult: ["Only Accepts Banknotes", "Only Accepts Card"]
+    },
+    "MPP 234": {
+      malfunction: "Coin reserve 2: Exchanged outside of the procedure",
+      repairProcess: "Needs ΤΗΕΜΑ",
+      assignedTo: "THEMA",
+      status: "Rejected",
+      finalResult: ["Only Accepts Banknotes", "Only Accepts Card"]
+    },
+    "MPP 701": {
+      malfunction: "Coin payment : Deactivation",
+      repairProcess: "Putting coin payment in service from SSUP",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    // ---------> BANKNOTE PARTS ALARMS <---------
+    "APB 001": {
+      malfunction: "Banknote Acceptance Faulty",
+      repairProcess: "Removing the jammed banknotes and restart",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "RPB 105": {
+      malfunction: "Banknote Cashbox: Unauthorized Withdrawal",
+      repairProcess: "Needs ΤΗΕΜΑ",
+      assignedTo: "THEMA",
+      status: "Rejected",
+      finalResult: ["Only Accepts Coins", "Only Accepts Card"]
+    },
+    "RPB 601": {
+      malfunction: "Banknote Payment: Communication Error",
+      repairProcess: "Removing the jammed banknotes and restart",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "RPB 701": {
+      malfunction: "Banknote Payment: Local/Remote Out Of Order",
+      repairProcess: "Putting banknote payment in service from SSUP",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    // ---------> TICKET-RECEIPT PRINTER ALARMS <---------
+    "MIC 001": {
+      malfunction: "E-Ticket Distribution: KO",
+      repairProcess: "Cleaning Printer delete css.bin Restart",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
     "MIC 007": {
-      malfunction: "Ticket Printer R/W Failure", // Updated to match exact datalist option if possible, previously was "Ticket Printer R/W Error" which might not match "Ticket Printer R/W Failure" in datalist. Datalist has "Ticket Printer R/W Failure".
-      repairProcess: "Cleaning Printer delete css.bin Restart" // Updating to match closest new option or keeping old? Old: "Cleaning Printer Sensor". New list has "Cleaning Printer delete css.bin Restart". I'll use the new one.
+      malfunction: "E- Ticket distribution : Reading/Writing failure",
+      repairProcess: "Cleaning Printer delete css.bin Restart",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "EIC 100": {
+      malfunction: "E-Ticket distribution : Completely empty",
+      repairProcess: "Needs ΤΗΕΜΑ",
+      assignedTo: "THEMA",
+      status: "Rejected",
+      finalResult: ["OK"]
+    },
+    "EIR 003": {
+      malfunction: "Paper empty",
+      repairProcess: "Needs ΤΗΕΜΑ",
+      assignedTo: "THEMA",
+      status: "Rejected",
+      finalResult: ["OK"]
+    },
+    "MIR 004": {
+      malfunction: "Printer Jamming",
+      repairProcess: "Testing the receipt printer",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    // ---------> POS ALARMS <---------
+    "MBB 003": {
+      malfunction: "Payment Module is Busy",
+      repairProcess: "Acknowledged Alarm and Red Button",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "MBB 601": {
+      malfunction: "Connection Card Ko",
+      repairProcess: "Restart",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    // ---------> GENERAL ALARMS <---------
+    "AEQ 024": {
+      malfunction: "Put The System Out of Order by SSUP",
+      repairProcess: "Unknown",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "AEQ 031": {
+      malfunction: "Out Of Service Done By Agent",
+      repairProcess: "Unknown",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "AEQ 062": {
+      malfunction: "SSUP Default",
+      repairProcess: "AFA002",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "ART 13": {
+      malfunction: "Forgot card",
+      repairProcess: "Opening and closing Atim",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
     }
   };
 
@@ -101,14 +249,25 @@ export default function ReportForm() {
 
   const handleFinalResultToggle = (value: string) => {
     setFormData(prev => {
-      const current = prev.finalResult;
+      let current = prev.finalResult;
+
       if (current.includes(value)) {
-        // Remove if present, but prevent empty if desired? User didn't specify. allowing empty.
-        return { ...prev, finalResult: current.filter(item => item !== value) };
+        // Remove if present
+        current = current.filter(item => item !== value);
       } else {
         // Add
-        return { ...prev, finalResult: [...current, value] };
+        current = [...current, value];
+
+        // Mutual exclusivity logic: OK and Out of service cannot coexist
+        if (value === "OK") {
+          current = current.filter(item => item !== "Out of service");
+        }
+        if (value === "Out of service") {
+          current = current.filter(item => item !== "OK");
+        }
       }
+
+      return { ...prev, finalResult: current };
     });
   };
 
@@ -433,15 +592,27 @@ export default function ReportForm() {
             "Only Accepts Card",
             "Only Accepts Coins",
             "Only Accepts Banknotes"
-          ].map(opt => (
-            <div
-              key={opt}
-              className={`${styles.chip} ${formData.finalResult.includes(opt) ? styles.active : ''}`}
-              onClick={() => handleFinalResultToggle(opt)}
-            >
-              {opt}
-            </div>
-          ))}
+          ].map(opt => {
+            // Logic to disable specific options for GATE
+            const isGate = formData.device === 'GATE';
+            const restrictedOptions = ["Only Accepts Card", "Only Accepts Coins", "Only Accepts Banknotes"];
+            const isDisabled = isGate && restrictedOptions.includes(opt);
+
+            return (
+              <div
+                key={opt}
+                className={`
+                  ${styles.chip} 
+                  ${formData.finalResult.includes(opt) ? styles.active : ''} 
+                  ${isDisabled ? styles.disabledChip : ''}
+                `}
+                onClick={() => !isDisabled && handleFinalResultToggle(opt)}
+                style={isDisabled ? { opacity: 0.5, cursor: 'not-allowed', pointerEvents: 'none' } : {}}
+              >
+                {opt}
+              </div>
+            );
+          })}
         </div>
       </div>
 
