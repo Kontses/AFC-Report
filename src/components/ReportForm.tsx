@@ -195,9 +195,6 @@ export default function ReportForm() {
           <select id="device" name="device" value={formData.device} onChange={handleChange}>
             <option value="ATIM">ATIM</option>
             <option value="GATE">GATE</option>
-            <option value="ATLAS">ATLAS</option>
-            <option value="CIT">CIT</option>
-            <option value="Other">Other</option>
           </select>
         </div>
       </div>
@@ -220,10 +217,27 @@ export default function ReportForm() {
 
       <div className={styles.group}>
         <label htmlFor="alarmCode">Alarm Code</label>
-        <input type="text" id="alarmCode" name="alarmCode" value={formData.alarmCode} onChange={handleChange} list="alarmCodes" />
+        <input
+          type="text"
+          id="alarmCode"
+          name="alarmCode"
+          value={formData.alarmCode}
+          onChange={handleChange}
+          list="alarmCodes"
+          disabled={formData.device !== 'ATIM'}
+          placeholder={formData.device !== 'ATIM' ? "N/A" : ""}
+        />
         <datalist id="alarmCodes">
-          <option value="MIC 007" />
-          <option value="No Alarm" />
+          {[
+            "ACR 001", "ACR 003", "AEQ 012", "AEQ 024", "AEQ 031", "AEQ 062",
+            "AFA 002", "AIC 601", "AIR 003", "Air 006", "APB 001", "ART 013",
+            "ART 203", "EIC 100", "EIC 102", "EIC 112", "ETP 006", "MBB 002",
+            "MBB 003", "MBB 601", "MIC 001", "MIC 004", "MIC 007", "MIR 004",
+            "MPP 011", "MPP 101", "MPP 102", "MPP 104", "MPP 105", "MPP 214",
+            "MPP 701", "No Alarm", "RPB 104", "RPB 105", "RPB 601", "RPB 701"
+          ].map((code) => (
+            <option key={code} value={code} />
+          ))}
         </datalist>
       </div>
 
