@@ -430,9 +430,9 @@ export default function ReportForm() {
           {[
             "OK",
             "Out of service",
-            "Only Accepts Banknotes",
             "Only Accepts Card",
-            "Only Accepts Coins"
+            "Only Accepts Coins",
+            "Only Accepts Banknotes"
           ].map(opt => (
             <div
               key={opt}
