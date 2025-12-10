@@ -396,6 +396,17 @@ export default function ReportForm() {
       </div>
 
       <div className={styles.group}>
+        <label htmlFor="finalResult">Final Result</label>
+        <select id="finalResult" name="finalResult" value={formData.finalResult} onChange={handleChange}>
+          <option value="OK">OK</option>
+          <option value="Only Accepts Banknotes">Only Accepts Banknotes</option>
+          <option value="Only Accepts Card">Only Accepts Card</option>
+          <option value="Only Accepts Coins">Only Accepts Coins</option>
+          <option value="Out of service">Out of service</option>
+        </select>
+      </div>
+
+      <div className={styles.group}>
         <label htmlFor="comments">Comments</label>
         <textarea id="comments" name="comments" value={formData.comments} onChange={handleChange} rows={3} />
       </div>
