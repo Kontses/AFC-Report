@@ -214,6 +214,11 @@ export default function ReportForm() {
         newData = { ...newData, ...rule };
       }
 
+      // Auto-fill logic based on Device
+      if (name === "device" && value === "GATE") {
+        newData.repairProcess = "Shutdown/Startup";
+      }
+
       // Save persistent fields to local storage
       if (name === "reportBy") {
         localStorage.setItem("lastReporter", value);
