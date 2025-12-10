@@ -39,16 +39,31 @@ export default function ReportForm() {
     }
   }, []);
 
+  // Auto-fill Rules
+  const ALARM_RULES: Record<string, Partial<typeof formData>> = {
+    "MPP 104": {
+      malfunction: "Coin Payment: Coinbox Full",
+      repairProcess: "Needs ΤΗΕΜΑ",
+      assignedTo: "THEMA",
+      status: "Only Accepts Coins",
+      finalResult: ["Only Accepts Banknotes", "Only Accepts Card"]
+    },
+    "MIC 007": {
+      malfunction: "Ticket Printer R/W Failure", // Updated to match exact datalist option if possible, previously was "Ticket Printer R/W Error" which might not match "Ticket Printer R/W Failure" in datalist. Datalist has "Ticket Printer R/W Failure".
+      repairProcess: "Cleaning Printer delete css.bin Restart" // Updating to match closest new option or keeping old? Old: "Cleaning Printer Sensor". New list has "Cleaning Printer delete css.bin Restart". I'll use the new one.
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
 
     setFormData((prev) => {
-      const newData = { ...prev, [name]: value };
+      let newData = { ...prev, [name]: value };
 
-      // Auto-fill logic
-      if (name === "alarmCode" && value === "MIC 007") {
-        newData.malfunction = "Ticket Printer R/W Error";
-        newData.repairProcess = "Cleaning Printer Sensor";
+      // Auto-fill logic based on Alarm Code
+      if (name === "alarmCode" && ALARM_RULES[value]) {
+        const rule = ALARM_RULES[value];
+        newData = { ...newData, ...rule };
       }
 
       // Save persistent fields to local storage
@@ -414,10 +429,10 @@ export default function ReportForm() {
         <div className={styles.chipContainer}>
           {[
             "OK",
+            "Out of service",
             "Only Accepts Banknotes",
             "Only Accepts Card",
-            "Only Accepts Coins",
-            "Out of service"
+            "Only Accepts Coins"
           ].map(opt => (
             <div
               key={opt}
