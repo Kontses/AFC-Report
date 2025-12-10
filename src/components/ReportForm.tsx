@@ -229,12 +229,13 @@ export default function ReportForm() {
         />
         <datalist id="alarmCodes">
           {[
+            "No Alarm",
             "ACR 001", "ACR 003", "AEQ 012", "AEQ 024", "AEQ 031", "AEQ 062",
             "AFA 002", "AIC 601", "AIR 003", "Air 006", "APB 001", "ART 013",
             "ART 203", "EIC 100", "EIC 102", "EIC 112", "ETP 006", "MBB 002",
             "MBB 003", "MBB 601", "MIC 001", "MIC 004", "MIC 007", "MIR 004",
             "MPP 011", "MPP 101", "MPP 102", "MPP 104", "MPP 105", "MPP 214",
-            "MPP 701", "No Alarm", "RPB 104", "RPB 105", "RPB 601", "RPB 701"
+            "MPP 701", "RPB 104", "RPB 105", "RPB 601", "RPB 701"
           ].map((code) => (
             <option key={code} value={code} />
           ))}
