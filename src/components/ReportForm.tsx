@@ -470,73 +470,95 @@ export default function ReportForm() {
           list="malfunctions"
         />
         <datalist id="malfunctions">
-          {[
-            "After Validation Doors Remain Closed",
-            "ATIM Has Run Out of Change",
-            "Bad Smiley",
-            "Banknote Acceptance Faulty",
-            "Banknote Cashbox: Full",
-            "Banknote Cashbox: Unauthorized Withdrawal",
-            "Banknote Payment: Communication Error",
-            "Banknote Payment: Local/Remote Out Of Order",
-            "Broken Gate",
-            "CA01:002 Not Initialized",
-            "Coin Payment: Coin Acceptor Failure",
-            "Coin payment : Coin box missing",
-            "Coin Payment: Coinbox Failure",
-            "Coin Payment: Coinbox Full",
-            "Coin payment : Deactivation",
-            "Coin Payment: Jammed Coins",
-            "Coin Payment: Unauthorized Cashbox Withdrawal",
-            "Concentrator Link Error",
-            "CTD Link Failure",
-            "Current Status",
-            "Default from ATLAS",
-            "Doors remain open",
-            "Eagle Acceptor Issue",
-            "Engine Defect",
-            "EQ01:024 Outage Supervisory",
-            "E- Ticket distribution : Reading/Writing failure",
-            "E-Ticket Distribution: Completely Empty",
-            "E-Ticket Distribution: Jamming",
-            "E-Ticket Distribution: KO",
-            "E-Ticket Distribution: Stock 1 Empty",
-            "E-Ticket Distribution: Stock 2 Empty",
-            "Frozen POS",
-            "Locker Issue",
-            "Out Of Power",
-            "out of order on ATLAS",
-            "Out Of Service Done By Agent",
-            "Paper Empty",
-            "Payment By Cash HS",
-            "Payment Module Connection Error",
-            "Payment Module is Busy",
-            "POS Irruption",
-            "Printer Jamming",
-            "Printer link error",
-            "Put The System Out of Order by SSUP",
-            "Reboot By Itself",
-            "Red light on banknote acceptor",
-            "Red X on Entry",
-            "Red X on Exit",
-            "Reserve boxes are missing",
-            "SAM Error",
-            "SAN Absent",
-            "Screen Freeze",
-            "SSUP Default",
-            "SSUP Link Failure",
-            "Ticket is Valid But Doors Remain Closed",
-            "Ticket Printer R/W Failure",
-            "UPS Defect",
-            "Use of banknotes returns to home screen",
-            "Use of POS Returns to Home Screen",
-            "Validator Light Is Off",
-            "Validator Link Error",
-            "Validator Not Readable",
-            "Validator reboot by itself"
-          ].sort().map((item) => (
-            <option key={item} value={item} />
-          ))}
+          {(() => {
+            const COMMON = [
+              "Out Of Power",
+              "out of order on ATLAS",
+              "Out Of Service Done By Agent",
+              "Reboot By Itself",
+              "Screen Freeze"
+            ];
+
+            const GATE_ONLY = [
+              "After Validation Doors Remain Closed",
+              "Broken Gate",
+              "Concentrator Link Error",
+              "Doors remain open",
+              "Red X on Entry",
+              "Red X on Exit",
+              "Validator Light Is Off",
+              "Validator Link Error",
+              "Validator Not Readable",
+              "Validator reboot by itself"
+            ];
+
+            const ATIM_ONLY = [
+              "ATIM Has Run Out of Change",
+              "Bad Smiley",
+              "Banknote Acceptance Faulty",
+              "Banknote Cashbox: Full",
+              "Banknote Cashbox: Unauthorized Withdrawal",
+              "Banknote Payment: Communication Error",
+              "Banknote Payment: Local/Remote Out Of Order",
+              "CA01:002 Not Initialized",
+              "Coin Payment: Coin Acceptor Failure",
+              "Coin payment : Coin box missing",
+              "Coin Payment: Coinbox Failure",
+              "Coin Payment: Coinbox Full",
+              "Coin payment : Deactivation",
+              "Coin Payment: Jammed Coins",
+              "Coin Payment: Unauthorized Cashbox Withdrawal",
+              "CTD Link Failure",
+              "Current Status",
+              "Default from ATLAS",
+              "Eagle Acceptor Issue",
+              "Engine Defect",
+              "EQ01:024 Outage Supervisory",
+              "E- Ticket distribution : Reading/Writing failure",
+              "E-Ticket Distribution: Completely Empty",
+              "E-Ticket Distribution: Jamming",
+              "E-Ticket Distribution: KO",
+              "E-Ticket Distribution: Stock 1 Empty",
+              "E-Ticket Distribution: Stock 2 Empty",
+              "Frozen POS",
+              "Locker Issue",
+              "Paper Empty",
+              "Payment By Cash HS",
+              "Payment Module Connection Error",
+              "Payment Module is Busy",
+              "POS Irruption",
+              "Printer Jamming",
+              "Printer link error",
+              "Put The System Out of Order by SSUP",
+              "Red light on banknote acceptor",
+              "Reserve boxes are missing",
+              "SAM Error",
+              "SAN Absent",
+              "SSUP Default",
+              "SSUP Link Failure",
+              "Ticket is Valid But Doors Remain Closed",
+              "Ticket Printer R/W Failure",
+              "UPS Defect",
+              "Use of banknotes returns to home screen",
+              "Use of POS Returns to Home Screen"
+            ];
+
+            let optionsToShow: string[] = [];
+
+            if (formData.device === "GATE") {
+              optionsToShow = [...GATE_ONLY, ...COMMON];
+            } else {
+              // ATIM and others
+              optionsToShow = [...ATIM_ONLY, ...COMMON];
+            }
+
+            // Sort Alphabetically
+            optionsToShow = optionsToShow.sort();
+
+            return optionsToShow.map((item) => (
+              <option key={item} value={item} />
+            ));
+          })()}
         </datalist>
       </div>
 
