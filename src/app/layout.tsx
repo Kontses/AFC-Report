@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Metro Daily Reports",
+  title: "AFC Report",
   description: "Daily reporting tool for ATIM and GATE repairs",
   manifest: "/manifest.json",
   appleWebApp: {

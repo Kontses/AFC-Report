@@ -1,6 +1,6 @@
 {
-    "name": "Metro Daily Reports",
-    "short_name": "Metro Reports",
+    "name": "AFC Report",
+    "short_name": "AFC Report",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#ffffff",
