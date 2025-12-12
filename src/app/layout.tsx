@@ -16,6 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "AFC Report",
   description: "Daily reporting tool for ATIM and GATE repairs",
+  authors: [{ name: "Vassilis Kontses" }],
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

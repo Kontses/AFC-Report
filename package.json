@@ -1,6 +1,7 @@
 {
   "name": "afc-daily-report",
   "version": "0.1.0",
+  "author": "Vassilis Kontses",
   "private": true,
   "scripts": {
     "dev": "next dev",

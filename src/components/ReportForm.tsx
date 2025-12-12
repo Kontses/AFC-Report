@@ -474,7 +474,7 @@ export default function ReportForm() {
           {(() => {
             const COMMON = [
               "Out Of Power",
-              "out of order on ATLAS",
+              "Out of Order on ATLAS",
               "Out Of Service Done By Agent",
               "Reboot By Itself",
               "Screen Freeze"
