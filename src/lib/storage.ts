@@ -18,11 +18,11 @@ export interface Report {
 
 const STORAGE_KEY = "metro_reports_offline";
 
-export function saveReportLocal(report: Omit<Report, "id" | "synced" | "reportedDate">): Report {
+export function saveReportLocal(report: Omit<Report, "id" | "synced">): Report {
   const newReport: Report = {
+    reportedDate: new Date().toISOString(), // Fallback
     ...report,
     id: crypto.randomUUID(),
-    reportedDate: new Date().toISOString(),
     synced: false,
   };
 

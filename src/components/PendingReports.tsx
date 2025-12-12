@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { getLocalReports, markReportSynced, Report } from "../lib/storage";
+import { submitReport } from "../lib/api";
 
 import styles from "./PendingReports.module.css";
 
@@ -20,20 +21,36 @@ export default function PendingReports() {
         return () => clearInterval(interval);
     }, []);
 
+
+
     const handleSync = async () => {
         if (reports.length === 0) return;
 
-        alert(`Syncing ${reports.length} reports...`);
+        // Simple confirmation text for now, or just go for it upon click
+        // alert(`Syncing ${reports.length} reports...`); 
 
-        // Mock API Call
+        let successCount = 0;
+        let failCount = 0;
+
         for (const report of reports) {
-            console.log("Uploading", report);
-            await new Promise(r => setTimeout(r, 500)); // Fake network delay
-            markReportSynced(report.id);
+            // Removing internal fields not needed for the sheet is handled by the Sheet script ignoring them,
+            // or we could sanitize here. But passing the full object is fine.
+            const success = await submitReport(report);
+            if (success) {
+                markReportSynced(report.id);
+                successCount++;
+            } else {
+                failCount++;
+            }
         }
 
         setReports(getLocalReports().filter(r => !r.synced));
-        alert("Sync Complete!");
+
+        if (failCount === 0) {
+            alert("Sync Complete! All reports uploaded. ☁️");
+        } else {
+            alert(`Sync Finished. Uploaded: ${successCount}. Failed: ${failCount}. Please check connection.`);
+        }
     };
 
     if (reports.length === 0) {
