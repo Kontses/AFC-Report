@@ -484,12 +484,14 @@ export default function ReportForm() {
               "Broken Gate",
               "Concentrator Link Error",
               "Doors remain open",
+              "Incorrect Configuration",
               "Red X on Entry",
               "Red X on Exit",
+              "SAM Error",
               "Validator Light Is Off",
               "Validator Link Error",
               "Validator Not Readable",
-              "Validator reboot by itself"
+              "Validator Reboot By Itself"
             ];
 
             const ATIM_ONLY = [
@@ -502,10 +504,10 @@ export default function ReportForm() {
               "Banknote Payment: Local/Remote Out Of Order",
               "CA01:002 Not Initialized",
               "Coin Payment: Coin Acceptor Failure",
-              "Coin payment : Coin box missing",
+              "Coin Payment: Coin Box Missing",
               "Coin Payment: Coinbox Failure",
               "Coin Payment: Coinbox Full",
-              "Coin payment : Deactivation",
+              "Coin Payment: Deactivation",
               "Coin Payment: Jammed Coins",
               "Coin Payment: Unauthorized Cashbox Withdrawal",
               "CTD Link Failure",
@@ -514,7 +516,7 @@ export default function ReportForm() {
               "Eagle Acceptor Issue",
               "Engine Defect",
               "EQ01:024 Outage Supervisory",
-              "E- Ticket distribution : Reading/Writing failure",
+              "E-Ticket Distribution: Reading/Writing failure",
               "E-Ticket Distribution: Completely Empty",
               "E-Ticket Distribution: Jamming",
               "E-Ticket Distribution: KO",
@@ -532,7 +534,6 @@ export default function ReportForm() {
               "Put The System Out of Order by SSUP",
               "Red light on banknote acceptor",
               "Reserve boxes are missing",
-              "SAM Error",
               "SAN Absent",
               "SSUP Default",
               "SSUP Link Failure",
