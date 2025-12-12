@@ -216,6 +216,16 @@ export default function ReportForm() {
 
 
 
+      // Device switch logic: clear incompatible fields
+      if (name === "device") {
+        if (value !== "GATE") {
+          newData.impact = ""; // Clear Impact if not GATE
+        }
+        if (value !== "ATIM") {
+          newData.alarmCode = ""; // Clear Alarm Code if not ATIM
+        }
+      }
+
       // Save persistent fields to local storage
       if (name === "reportBy") {
         localStorage.setItem("lastReporter", value);
