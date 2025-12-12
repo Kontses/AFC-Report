@@ -123,14 +123,14 @@ export default function ReportForm() {
     // ---------> TICKET-RECEIPT PRINTER ALARMS <---------
     "MIC 001": {
       malfunction: "E-Ticket Distribution: KO",
-      repairProcess: "Cleaning Printer delete css.bin Restart",
+      repairProcess: "Cleaning Printer, delete css.bin, Restart",
       assignedTo: "TRAXIS ENGINEERING",
       status: "Solved",
       finalResult: ["OK"]
     },
     "MIC 007": {
       malfunction: "E- Ticket distribution : Reading/Writing failure",
-      repairProcess: "Cleaning Printer delete css.bin Restart",
+      repairProcess: "Cleaning Printer, delete, css.bin Restart",
       assignedTo: "TRAXIS ENGINEERING",
       status: "Solved",
       finalResult: ["OK"]
@@ -608,7 +608,7 @@ export default function ReportForm() {
             "AFA002",
             "Broken recycle",
             "Clean Sim Card",
-            "Cleaning Printer delete css.bin Restart",
+            "Cleaning Printer, delete css.bin, Restart",
             "Concentration call",
             "Needs Conduent",
             "Needs ΤΗΕΜΑ",
