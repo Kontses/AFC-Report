@@ -294,7 +294,9 @@ export default function ReportForm() {
     }
 
     // Format to Greek locale: d/M/yyyy h:mm tt
+    // Format to Greek locale: d/M/yyyy h:mm tt
     // Example: 9/12/2025 2:00 μμ
+    // Normalize AM/PM logic to ensure consistency across devices (some return PM/AM, some μμ/πμ)
     const formattedDate = finalDate.toLocaleString('el-GR', {
       day: 'numeric',
       month: 'numeric',
@@ -302,7 +304,9 @@ export default function ReportForm() {
       hour: '2-digit',
       minute: '2-digit',
       hour12: true
-    }).replace('pm', 'μμ').replace('am', 'πμ');
+    })
+      .replace(/pm|μμ/i, 'μ.μ.')
+      .replace(/am|πμ/i, 'π.μ.');
 
     const submissionData = {
       ...formData,
