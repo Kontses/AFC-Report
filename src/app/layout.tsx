@@ -22,6 +22,10 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "Metro Reports",
   },
+  icons: {
+    icon: "/traxis_logo.png",
+    apple: "/traxis_logo.png",
+  },
 };
 
 export const viewport = {
