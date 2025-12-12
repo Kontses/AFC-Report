@@ -51,3 +51,9 @@ export function clearSyncedReports() {
   const pending = existing.filter(r => !r.synced);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(pending));
 }
+
+export function deleteReportLocal(id: string) {
+  const existing = getLocalReports();
+  const updated = existing.filter(r => r.id !== id);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+}

@@ -58,3 +58,30 @@
 .syncBtn:hover {
     background: var(--primary-hover);
 }
+
+.deleteBtn {
+    background: transparent;
+    border: none;
+    color: #ef4444;
+    /* Standard red for danger/delete */
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s;
+    margin-left: 0.5rem;
+}
+
+.deleteBtn:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.deleteBtn svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+}
