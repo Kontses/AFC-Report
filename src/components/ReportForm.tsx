@@ -412,6 +412,7 @@ export default function ReportForm() {
           <select id="device" name="device" value={formData.device} onChange={handleChange}>
             <option value="ATIM">ATIM</option>
             <option value="GATE">GATE</option>
+            <option value="ATLAS">ATLAS</option>
           </select>
         </div>
       </div>
