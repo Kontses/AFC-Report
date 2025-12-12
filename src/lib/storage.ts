@@ -20,10 +20,10 @@ const STORAGE_KEY = "metro_reports_offline";
 
 export function saveReportLocal(report: Omit<Report, "id" | "synced">): Report {
   const newReport: Report = {
-    reportedDate: new Date().toISOString(), // Fallback
     ...report,
     id: crypto.randomUUID(),
     synced: false,
+    reportedDate: report.reportedDate || new Date().toISOString(),
   };
 
   const existing = getLocalReports();
