@@ -30,6 +30,14 @@ export default function PendingReports() {
         };
         window.addEventListener('online', onOnline);
 
+        // Listener for explicit sync triggers (e.g. from ReportForm)
+        const onSyncTrigger = () => {
+            console.log("Sync triggered explicitly");
+            handleSync();
+        };
+        // Use a CustomEvent in a way that TypeScript accepts or cast it
+        window.addEventListener('sync-trigger', onSyncTrigger);
+
         // Poll to refresh list (in case ReportForm adds new ones)
         const interval = setInterval(() => {
             if (!isSyncingRef.current) {
@@ -48,6 +56,7 @@ export default function PendingReports() {
 
         return () => {
             window.removeEventListener('online', onOnline);
+            window.removeEventListener('sync-trigger', onSyncTrigger);
             clearInterval(interval);
         };
     }, [reports]);
