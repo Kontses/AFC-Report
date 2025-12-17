@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { getLocalReports, markReportSynced, deleteReportLocal, Report } from "../lib/storage";
 import { submitReport } from "../lib/api";
 
@@ -9,7 +9,9 @@ import styles from "./PendingReports.module.css";
 export default function PendingReports() {
     const [reports, setReports] = useState<Report[]>([]);
 
-    const [isSyncing, setIsSyncing] = useState(false);
+    const [isSyncingDisplay, setIsSyncingDisplay] = useState(false); // Only for UI
+    const isSyncingRef = React.useRef(false); // True source of truth
+    const processingIds = React.useRef(new Set<string>()); // Track distinct IDs being sent
 
     useEffect(() => {
         // Load initial reports
@@ -30,10 +32,12 @@ export default function PendingReports() {
 
         // Poll to refresh list (in case ReportForm adds new ones)
         const interval = setInterval(() => {
-            if (!isSyncing) {
+            if (!isSyncingRef.current) {
                 const latest = getLocalReports().filter(r => !r.synced);
                 // Only update state if length changed to avoid redraws or loops
-                setReports(latest);
+                if (JSON.stringify(latest) !== JSON.stringify(reports)) {
+                    setReports(latest);
+                }
 
                 // Also try to sync if we found new reports and are online
                 if (latest.length > 0 && navigator.onLine) {
@@ -46,27 +50,43 @@ export default function PendingReports() {
             window.removeEventListener('online', onOnline);
             clearInterval(interval);
         };
-    }, [isSyncing]); // Depend on isSyncing to avoid re-triggering while syncing
+    }, [reports]);
 
     const handleSync = async () => {
         // Safe-guard: re-check latest reports from storage to be sure
         const currentReports = getLocalReports().filter(r => !r.synced);
-        if (currentReports.length === 0 || isSyncing) return;
 
-        setIsSyncing(true);
+        // Critical Section Guard
+        if (currentReports.length === 0 || isSyncingRef.current) return;
+
+        isSyncingRef.current = true;
+        setIsSyncingDisplay(true);
         console.log("Starting Auto-Sync...");
 
         try {
             for (const report of currentReports) {
-                const success = await submitReport(report);
-                if (success) {
-                    markReportSynced(report.id);
+                // Double-Check: Skip if implementation detail already processing this ID
+                if (processingIds.current.has(report.id)) continue;
+
+                processingIds.current.add(report.id);
+
+                try {
+                    const success = await submitReport(report);
+                    if (success) {
+                        markReportSynced(report.id);
+                        // Remove from list immediately to reflect progress
+                        setReports(prev => prev.filter(r => r.id !== report.id));
+                    }
+                } finally {
+                    processingIds.current.delete(report.id);
                 }
             }
         } catch (err) {
             console.error("Auto-sync error:", err);
         } finally {
-            setIsSyncing(false);
+            isSyncingRef.current = false;
+            setIsSyncingDisplay(false);
+            // Final consistency check
             setReports(getLocalReports().filter(r => !r.synced));
             console.log("Auto-Sync finished.");
         }
@@ -99,7 +119,7 @@ export default function PendingReports() {
             <h3 className={styles.title} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>Pending Uploads</span>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    {isSyncing && <span style={{ fontSize: '0.7em', color: 'var(--primary)', animation: 'pulse 1s infinite' }}>☁️ Syncing...</span>}
+                    {isSyncingDisplay && <span style={{ fontSize: '0.7em', color: 'var(--primary)', animation: 'pulse 1s infinite' }}>☁️ Syncing...</span>}
                     <span style={{ fontSize: '0.8em', background: 'var(--primary)', padding: '2px 8px', borderRadius: '12px', color: 'white' }}>
                         {reports.length}
                     </span>
@@ -118,7 +138,7 @@ export default function PendingReports() {
                             className={styles.deleteBtn}
                             onClick={(e) => handleDelete(r.id, e)}
                             title="Delete Report"
-                            disabled={isSyncing}
+                            disabled={isSyncingDisplay}
                         >
                             <svg viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
