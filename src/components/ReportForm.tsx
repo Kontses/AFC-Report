@@ -239,14 +239,27 @@ export default function ReportForm() {
   };
 
   useEffect(() => {
-    // Initialize date if empty
-    if (!formData.reportedDate && autoTime) {
-      const now = new Date();
-      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFormData(prev => ({ ...prev, reportedDate: now.toISOString().slice(0, 16) }));
+    // Live Clock for Auto Mode
+    if (autoTime) {
+      const updateTime = () => {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        const newTime = now.toISOString().slice(0, 16);
+
+        setFormData(prev => {
+          if (prev.reportedDate !== newTime) {
+            return { ...prev, reportedDate: newTime };
+          }
+          return prev;
+        });
+      };
+
+      updateTime(); // Update immediately
+      const interval = setInterval(updateTime, 1000); // Update every second
+
+      return () => clearInterval(interval);
     }
-  }, [autoTime, formData.reportedDate]);
+  }, [autoTime]);
 
   const handleAutoTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const isChecked = e.target.checked;
@@ -284,8 +297,13 @@ export default function ReportForm() {
     });
   };
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
 
     // Determine final timestamp
     let finalDate = new Date();
@@ -293,7 +311,6 @@ export default function ReportForm() {
       finalDate = new Date(formData.reportedDate);
     }
 
-    // Format to Greek locale: d/M/yyyy h:mm tt
     // Format to Greek locale: d/M/yyyy h:mm tt
     // Example: 9/12/2025 2:00 μμ
     // Normalize AM/PM logic to ensure consistency across devices (some return PM/AM, some μμ/πμ)
@@ -350,6 +367,8 @@ export default function ReportForm() {
     } catch (error) {
       console.error("Failed to save", error);
       alert("Error saving report");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -453,11 +472,11 @@ export default function ReportForm() {
           {[
             "No Alarm",
             "ACR 001", "ACR 003", "AEQ 012", "AEQ 024", "AEQ 031", "AEQ 062",
-            "AIC 601", "AIR 003", "Air 006", "APB 001", "ART 013", "ART 203",
-            "EIC 100", "EIC 102", "EIC 112", "ETP 006", "MBB 002", "MBB 003",
-            "MBB 601", "MIC 001", "MIC 004", "MIC 007", "MIR 004", "MPP 011",
-            "MPP 101", "MPP 102", "MPP 104", "MPP 105", "MPP 214", "MPP 701",
-            "RPB 104", "RPB 105", "RPB 601", "RPB 701"
+            "AFA 002", "AIC 601", "AIR 003", "Air 006", "APB 001", "ART 013",
+            "ART 203", "EIC 100", "EIC 102", "EIC 112", "ETP 006", "MBB 002",
+            "MBB 003", "MBB 601", "MIC 001", "MIC 004", "MIC 007", "MIR 004",
+            "MPP 011", "MPP 101", "MPP 102", "MPP 104", "MPP 105", "MPP 214",
+            "MPP 701", "RPB 104", "RPB 105", "RPB 601", "RPB 701"
           ].map((code) => (
             <option key={code} value={code} />
           ))}
@@ -490,8 +509,7 @@ export default function ReportForm() {
               "Concentrator Link Error",
               "Doors remain open",
               "Incorrect Configuration",
-              "Red X on Entry",
-              "Red X on Exit",
+              "Red X",
               "SAM Error",
               "Validator Light Is Off",
               "Validator Link Error",
@@ -533,6 +551,7 @@ export default function ReportForm() {
               "Payment By Cash HS",
               "Payment Module Connection Error",
               "Payment Module is Busy",
+              "Payment is approved Freezing Message",
               "POS Irruption",
               "Printer Jamming",
               "Printer link error",
@@ -542,7 +561,6 @@ export default function ReportForm() {
               "SAN Absent",
               "SSUP Default",
               "SSUP Link Failure",
-              "Ticket is Valid But Doors Remain Closed",
               "Ticket Printer R/W Failure",
               "UPS Defect",
               "Use of banknotes returns to home screen",
@@ -583,9 +601,9 @@ export default function ReportForm() {
         <datalist id="impacts">
           {[
             "No Entry",
-            "No Entry No Exit",
+            "No Entry/Exit",
             "No Exit",
-            "Unauthorized Entry or Exit"
+            "Unauthorized Entry/Exit"
           ].map((item) => (
             <option key={item} value={item} />
           ))}
@@ -645,7 +663,7 @@ export default function ReportForm() {
         <div className={styles.chipContainer}>
           {[
             "OK",
-            "Out of service",
+            "Out of Service",
             "Only Accepts Card",
             "Only Accepts Coins",
             "Only Accepts Banknotes"
@@ -678,7 +696,9 @@ export default function ReportForm() {
         <textarea id="comments" name="comments" value={formData.comments} onChange={handleChange} rows={3} />
       </div>
 
-      <button type="submit" className={styles.submitBtn}>Submit Report</button>
+      <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>
+        {isSubmitting ? "Sending..." : "Submit Report"}
+      </button>
     </form>
   );
 }
