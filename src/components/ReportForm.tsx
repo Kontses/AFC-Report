@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import styles from "./ReportForm.module.css";
 import { saveReportLocal, markReportSynced } from "../lib/storage";
-import { submitReport } from "../lib/api";
 
 export default function ReportForm() {
   const [formData, setFormData] = useState({
@@ -334,23 +333,14 @@ export default function ReportForm() {
     console.log("Submitting report:", submissionData);
 
     try {
-      // 1. Always save locally first (as draft/history)
-      const savedReport = saveReportLocal(submissionData);
+      // 1. Always save locally (as draft/history)
+      saveReportLocal(submissionData);
 
-      // 2. Try to upload to Cloud
-      const isOnline = navigator.onLine; // Basic check, but fetch will also fail if offline
-      let uploaded = false;
+      // 2. Trigger the background sync engine (PendingReports)
+      // This decoupling prevents race conditions/double submissions
+      window.dispatchEvent(new Event('sync-trigger'));
 
-      if (isOnline) {
-        uploaded = await submitReport(submissionData);
-      }
-
-      if (uploaded) {
-        markReportSynced(savedReport.id);
-        alert("Report Sent & Saved! 🚀");
-      } else {
-        alert("No Internet? Report saved LOCALLY. Sync later! 💾");
-      }
+      alert("Report Saved to Queue! 📨\nIt will be uploaded automatically.");
 
       // Reset form (keep reporter, maybe station)
       setFormData(prev => ({

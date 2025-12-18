@@ -7,19 +7,22 @@ import { submitReport } from "../lib/api";
 import styles from "./PendingReports.module.css";
 
 export default function PendingReports() {
-    const [reports, setReports] = useState<Report[]>([]);
+    // Lazy initialization to avoid effect trigger
+    const [reports, setReports] = useState<Report[]>(() => {
+        if (typeof window !== 'undefined') {
+            return getLocalReports().filter(r => !r.synced);
+        }
+        return [];
+    });
 
     const [isSyncingDisplay, setIsSyncingDisplay] = useState(false); // Only for UI
     const isSyncingRef = React.useRef(false); // True source of truth
     const processingIds = React.useRef(new Set<string>()); // Track distinct IDs being sent
 
     useEffect(() => {
-        // Load initial reports
-        const currentReports = getLocalReports().filter(r => !r.synced);
-        setReports(currentReports);
-
         // Auto-sync on mount if online and has reports
-        if (navigator.onLine && currentReports.length > 0) {
+        const initialReports = getLocalReports().filter(r => !r.synced);
+        if (navigator.onLine && initialReports.length > 0) {
             handleSync();
         }
 
@@ -30,16 +33,28 @@ export default function PendingReports() {
         };
         window.addEventListener('online', onOnline);
 
-        // Poll to refresh list (in case ReportForm adds new ones)
+        // Listener for explicit sync triggers (e.g. from ReportForm)
+        const onSyncTrigger = () => {
+            console.log("Sync triggered explicitly");
+            handleSync();
+        };
+        // Use a CustomEvent in a way that TypeScript accepts or cast it
+        window.addEventListener('sync-trigger', onSyncTrigger);
+
+        // Poll to refresh list and sync
         const interval = setInterval(() => {
             if (!isSyncingRef.current) {
                 const latest = getLocalReports().filter(r => !r.synced);
-                // Only update state if length changed to avoid redraws or loops
-                if (JSON.stringify(latest) !== JSON.stringify(reports)) {
-                    setReports(latest);
-                }
 
-                // Also try to sync if we found new reports and are online
+                // Functional update to avoid dependency on 'reports'
+                setReports(prev => {
+                    if (JSON.stringify(latest) !== JSON.stringify(prev)) {
+                        return latest;
+                    }
+                    return prev;
+                });
+
+                // Try to sync if we found something and are online
                 if (latest.length > 0 && navigator.onLine) {
                     handleSync();
                 }
@@ -48,9 +63,10 @@ export default function PendingReports() {
 
         return () => {
             window.removeEventListener('online', onOnline);
+            window.removeEventListener('sync-trigger', onSyncTrigger);
             clearInterval(interval);
         };
-    }, [reports]);
+    }, []); // Empty dependency array preventing loops
 
     const handleSync = async () => {
         // Safe-guard: re-check latest reports from storage to be sure
