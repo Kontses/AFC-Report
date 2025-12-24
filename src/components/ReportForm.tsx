@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import styles from "./ReportForm.module.css";
 import { saveReportLocal, markReportSynced } from "../lib/storage";
 import HistoryModal from "./HistoryModal";
-import { Save, Send, Pencil } from "lucide-react";
+import { Pencil } from "lucide-react";
 
 interface ReportFormProps {
   isHistoryOpen: boolean;
@@ -16,7 +16,7 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
     reportBy: "Emmanouil Kazantzoglou",
     station: "1(NRS)",
     device: "ATIM",
-    tag: "",
+    tag: "", // Now always string, can be "101, 102"
     status: "Solved",
     alarmCode: "",
     malfunction: "",
@@ -29,8 +29,6 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
   });
 
   const [autoTime, setAutoTime] = useState(true);
-  const [isMultiTag, setIsMultiTag] = useState(false);
-  const [multiTags, setMultiTags] = useState("");
 
   // Edit State
   const [isEditMode, setIsEditMode] = useState(false);
@@ -221,6 +219,13 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
     const { name, value } = e.target;
 
     setFormData((prev) => {
+      // Logic for Tag Restriction: Only allow numbers, commas, and spaces
+      if (name === "tag") {
+        if (!/^[0-9, ]*$/.test(value)) {
+          return prev;
+        }
+      }
+
       let newData = { ...prev, [name]: value };
 
       // Auto-fill logic based on Alarm Code
@@ -322,7 +327,7 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
       reportBy: report["Reported By"] || report.reportBy || "",
       station: report["Station"] || report.station || "",
       device: report["Device"] || report.device || "ATIM",
-      tag: report["Tag"] || report.tag || "",
+      tag: String(report["Tag"] || report.tag || ""), // Ensure string
       status: report["Status"] || report.status || "Solved",
       alarmCode: report["Alarm Code"] || report.alarmCode || "",
       malfunction: report["Malfunction"] || report.malfunction || "",
@@ -350,7 +355,6 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
     setFormData(mappedData);
     setIsEditMode(true);
     setAutoTime(false); // Disable auto-time to keep original date
-    setIsMultiTag(false); // Simplify to single tag mode for edit
     onHistoryClose(); // Close modal using prop
 
     // Scroll to top
@@ -384,26 +388,23 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
     setIsSubmitting(true);
 
     try {
-      // Tags processing
+      // Tags processing: always split by comma
       let tagsToSubmit: string[] = [];
 
-      if (isMultiTag) {
-        tagsToSubmit = multiTags.split(',')
-          .map(t => t.trim())
-          .filter(t => t.length > 0);
+      if (!formData.tag) {
+        alert("Please provide at least one Tag.");
+        setIsSubmitting(false);
+        return;
+      }
 
-        if (tagsToSubmit.length === 0) {
-          alert("Please enter at least one tag.");
-          setIsSubmitting(false);
-          return;
-        }
-      } else {
-        if (!formData.tag) {
-          alert("Please provide a Tag.");
-          setIsSubmitting(false);
-          return;
-        }
-        tagsToSubmit = [formData.tag];
+      tagsToSubmit = formData.tag.toString().split(',')
+        .map(t => t.trim())
+        .filter(t => t.length > 0);
+
+      if (tagsToSubmit.length === 0) {
+        alert("Please provide at least one valid tag.");
+        setIsSubmitting(false);
+        return;
       }
 
       // Determine final timestamp
@@ -471,7 +472,6 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
         finalResult: ["OK"],
         reportedDate: ""
       }));
-      setMultiTags("");
 
     } catch (error) {
       console.error("Failed to save", error);
@@ -586,52 +586,22 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
           </div>
         </div>
 
-        <div className={styles.group}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <label htmlFor="tag">Tag</label>
-            <label style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', cursor: isEditMode ? 'not-allowed' : 'pointer', gap: '0.3rem', color: '#64748b', opacity: isEditMode ? 0.5 : 1 }}>
-              <input
-                type="checkbox"
-                checked={isMultiTag}
-                onChange={(e) => {
-                  if (isEditMode) return;
-                  setIsMultiTag(e.target.checked);
-                  if (!e.target.checked) setMultiTags("");
-                  else setFormData(prev => ({ ...prev, tag: "" }));
-                }}
-                style={{ width: 'auto', margin: 0 }}
-                disabled={isEditMode}
-              />
-              Multiple Entry
-            </label>
-          </div>
-
-          {isMultiTag ? (
+        <div className={styles.row}>
+          <div className={styles.group}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <label htmlFor="tag">Tag</label>
+            </div>
             <input
               type="text"
-              value={multiTags}
-              onChange={(e) => setMultiTags(e.target.value)}
-              placeholder="e.g. 1, 2, 3"
-              required
-            />
-          ) : (
-            <input
-              type="number"
               id="tag"
               name="tag"
               value={formData.tag}
               onChange={handleChange}
-              min="1"
-              max="999"
+              placeholder=""
               required
             />
-          )}
-          {isMultiTag && <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.25rem' }}>Separate tags with commas</div>}
-        </div>
+          </div>
 
-        <div className={styles.sectionDivider}></div>
-
-        <div className={styles.row}>
           <div className={styles.group}>
             <label htmlFor="status">Status</label>
             <select id="status" name="status" value={formData.status} onChange={handleChange}>
@@ -641,8 +611,9 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
               <option value="Out Of Service">Out Of Service</option>
             </select>
           </div>
-          <div className={styles.group}></div>
         </div>
+
+        <div className={styles.sectionDivider}></div>
 
         <div className={styles.group}>
           <label htmlFor="alarmCode">Alarm Code</label>
@@ -893,7 +864,7 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
           {isSubmitting ? "Sending..." : (isEditMode ? "Submit Edit" : "Submit Report")}
         </button>
 
-      </form>
-    </div>
+      </form >
+    </div >
   );
 }
