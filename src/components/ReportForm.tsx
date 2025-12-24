@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./ReportForm.module.css";
 import { saveReportLocal, markReportSynced } from "../lib/storage";
 
@@ -22,6 +22,8 @@ export default function ReportForm() {
   });
 
   const [autoTime, setAutoTime] = useState(true);
+  const [isMultiTag, setIsMultiTag] = useState(false);
+  const [multiTags, setMultiTags] = useState("");
 
   useEffect(() => {
     // Load saved reporter from local storage
@@ -213,8 +215,6 @@ export default function ReportForm() {
         newData = { ...newData, ...rule };
       }
 
-
-
       // Device switch logic: clear incompatible fields
       if (name === "device") {
         if (value !== "GATE") {
@@ -304,45 +304,74 @@ export default function ReportForm() {
 
     setIsSubmitting(true);
 
-    // Determine final timestamp
-    let finalDate = new Date();
-    if (!autoTime && formData.reportedDate) {
-      finalDate = new Date(formData.reportedDate);
-    }
-
-    // Format to Greek locale: d/M/yyyy h:mm tt
-    // Example: 9/12/2025 2:00 μμ
-    // Normalize AM/PM logic to ensure consistency across devices (some return PM/AM, some μμ/πμ)
-    const formattedDate = finalDate.toLocaleString('el-GR', {
-      day: 'numeric',
-      month: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    })
-      .replace(/pm|μμ/i, 'μ.μ.')
-      .replace(/am|πμ/i, 'π.μ.');
-
-    const submissionData = {
-      ...formData,
-      finalResult: formData.finalResult.join(", "), // Convert array to comma-separated string
-      reportedDate: formattedDate
-    };
-
-    console.log("Submitting report:", submissionData);
-
     try {
-      // 1. Always save locally (as draft/history)
-      saveReportLocal(submissionData);
+      // Tags processing
+      let tagsToSubmit: string[] = [];
 
-      // 2. Trigger the background sync engine (PendingReports)
-      // This decoupling prevents race conditions/double submissions
+      if (isMultiTag) {
+        // Split by comma, trim, filter empty
+        tagsToSubmit = multiTags.split(',')
+          .map(t => t.trim())
+          .filter(t => t.length > 0);
+
+        if (tagsToSubmit.length === 0) {
+          alert("Please enter at least one tag.");
+          setIsSubmitting(false);
+          return;
+        }
+      } else {
+        if (!formData.tag) {
+          alert("Please provide a Tag.");
+          setIsSubmitting(false);
+          return;
+        }
+        tagsToSubmit = [formData.tag];
+      }
+
+      // Determine final timestamp
+      let finalDate = new Date();
+      if (!autoTime && formData.reportedDate) {
+        finalDate = new Date(formData.reportedDate);
+      }
+
+      // Format to Greek locale
+      const formattedDate = finalDate.toLocaleString('el-GR', {
+        day: 'numeric',
+        month: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      })
+        .replace(/pm|μμ/i, 'μ.μ.')
+        .replace(/am|πμ/i, 'π.μ.');
+
+      // Submit for each tag
+      let successCount = 0;
+
+      for (const tag of tagsToSubmit) {
+        const submissionData = {
+          ...formData,
+          tag: tag, // Use the specific tag
+          finalResult: formData.finalResult.join(", "),
+          reportedDate: formattedDate
+        };
+
+        console.log(`Submitting report for Tag ${tag}:`, submissionData);
+        saveReportLocal(submissionData);
+        successCount++;
+      }
+
+      // Trigger sync
       window.dispatchEvent(new Event('sync-trigger'));
 
-      alert("Report Saved to Queue! 📨\nIt will be uploaded automatically.");
+      const msg = successCount > 1
+        ? `${successCount} Reports Saved to Queue! 📨`
+        : "Report Saved to Queue! 📨";
 
-      // Reset form (keep reporter, maybe station)
+      alert(msg);
+
+      // Reset form
       setFormData(prev => ({
         ...prev,
         tag: "",
@@ -350,10 +379,11 @@ export default function ReportForm() {
         comments: "",
         malfunction: "",
         repairProcess: "",
-        finalResult: ["OK"], // Reset to default
-        // If autoTime is true, we don't need to reset reportedDate as it's generated on submit.
+        finalResult: ["OK"],
         reportedDate: ""
       }));
+      setMultiTags(""); // Reset multi-tags too
+
     } catch (error) {
       console.error("Failed to save", error);
       alert("Error saving report");
@@ -430,11 +460,50 @@ export default function ReportForm() {
         </div>
       </div>
 
-      <div className={styles.row}>
-        <div className={styles.group}>
+      <div className={styles.group}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <label htmlFor="tag">Tag</label>
-          <input type="number" id="tag" name="tag" value={formData.tag} onChange={handleChange} min="1" max="19" required />
+          <label style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '0.3rem', color: '#64748b' }}>
+            <input
+              type="checkbox"
+              checked={isMultiTag}
+              onChange={(e) => {
+                setIsMultiTag(e.target.checked);
+                if (!e.target.checked) setMultiTags("");
+                else setFormData(prev => ({ ...prev, tag: "" }));
+              }}
+              style={{ width: 'auto', margin: 0 }}
+            />
+            Multiple Entry
+          </label>
         </div>
+
+        {isMultiTag ? (
+          <input
+            type="text"
+            value={multiTags}
+            onChange={(e) => setMultiTags(e.target.value)}
+            placeholder="e.g. 1, 2, 3"
+            required
+          />
+        ) : (
+          <input
+            type="number"
+            id="tag"
+            name="tag"
+            value={formData.tag}
+            onChange={handleChange}
+            min="1"
+            max="999"
+            required
+          />
+        )}
+        {isMultiTag && <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.25rem' }}>Separate tags with commas</div>}
+      </div>
+
+      <div className={styles.sectionDivider}></div>
+
+      <div className={styles.row}>
         <div className={styles.group}>
           <label htmlFor="status">Status</label>
           <select id="status" name="status" value={formData.status} onChange={handleChange}>
@@ -444,6 +513,7 @@ export default function ReportForm() {
             <option value="Out Of Service">Out Of Service</option>
           </select>
         </div>
+        <div className={styles.group}></div>
       </div>
 
       <div className={styles.group}>
