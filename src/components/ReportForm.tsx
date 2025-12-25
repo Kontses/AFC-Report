@@ -33,14 +33,18 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
   // Edit State
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingRowIndex, setEditingRowIndex] = useState<number | null>(null);
+  const [currentSessionReporter, setCurrentSessionReporter] = useState("Emmanouil Kazantzoglou");
 
   useEffect(() => {
     // Load saved reporter from local storage
     const savedReporter = localStorage.getItem("lastReporter");
     if (savedReporter) {
       if (!isEditMode) { // Only auto-fill if not editing
+        const saved = savedReporter || "Emmanouil Kazantzoglou";
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        setFormData(prev => ({ ...prev, reportBy: savedReporter }));
+        setFormData(prev => ({ ...prev, reportBy: saved }));
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setCurrentSessionReporter(saved);
       }
     }
 
@@ -249,6 +253,7 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
       if (!isEditMode) {
         if (name === "reportBy") {
           localStorage.setItem("lastReporter", value);
+          setCurrentSessionReporter(value);
         }
         if (name === "station") {
           localStorage.setItem("lastStation", value);
@@ -437,7 +442,7 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
       // Submit for each tag
       let successCount = 0;
 
-      const currentEditor = localStorage.getItem("lastReporter") || "Unknown Engineer";
+      const currentEditor = currentSessionReporter;
 
       for (const tag of tagsToSubmit) {
 
