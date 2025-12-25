@@ -32,6 +32,7 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
 
   // Edit State
   const [isEditMode, setIsEditMode] = useState(false);
+  const [editingRowIndex, setEditingRowIndex] = useState<number | null>(null);
 
   useEffect(() => {
     // Load saved reporter from local storage
@@ -339,6 +340,13 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
       reportedDate: ""
     };
 
+    // Capture Row Index if available (from new GAS script)
+    if (report._rowIndex) {
+      setEditingRowIndex(report._rowIndex);
+    } else {
+      setEditingRowIndex(null);
+    }
+
     // Handle Date 
     let dateVal = report["Date"] || report["reportedDate"];
     if (dateVal) {
@@ -364,6 +372,7 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
   const handleCancelEdit = () => {
     if (confirm("Cancel editing? Unsaved changes will be lost.")) {
       setIsEditMode(false);
+      setEditingRowIndex(null);
       setAutoTime(true);
       // Reset form to defaults or handle as needed
       setFormData(prev => ({
@@ -459,8 +468,23 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
 
       alert(msg);
 
+      // Perform Deletion of Old Row if in Edit Mode
+      if (isEditMode && editingRowIndex) {
+        console.log(`Attempting to delete old row: ${editingRowIndex}`);
+        // Fire and forget - or ideally notify user if it fails, but for now we trust the queue logic for the NEW report.
+        // The delete is an online-only action.
+        fetch('/api/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rowIndex: editingRowIndex })
+        }).then(res => res.json())
+          .then(data => console.log("Delete result:", data))
+          .catch(err => console.error("Delete failed:", err));
+      }
+
       // Reset form
       setIsEditMode(false);
+      setEditingRowIndex(null);
       setAutoTime(true); // Re-enable auto time
       setFormData(prev => ({
         ...prev,
