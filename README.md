@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚆 Σύστημα Αναφορών AFC
 
-## Getting Started
+Μια σύγχρονη, γρήγορη και με δυνατότητα λειτουργίας εκτός σύνδεσης (offline) web εφαρμογή για την αναφορά και παρακολούθηση βλαβών στα συστήματα ATIMs και GATEs.
 
-First, run the development server:
+Σχεδιασμένη για να διευκολύνει την καθημερινή ροή εργασιών των μηχανικών πεδίου, παρέχοντας γρήγορη καταχώρηση δεδομένων, αυτόματες προτάσεις και ισχυρές δυνατότητες αναφοράς.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🌟 Βασικά Χαρακτηριστικά
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 📝 Έξυπνη Φόρμα Αναφοράς
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Γρήγορη Καταχώρηση**: Βελτιστοποιημένη για χρήση σε κινητά και υπολογιστές.
+- **Λογική Αυτόματης Συμπλήρωσης**: Συμπληρώνει αυτόματα τα πεδία "Βλάβη" (Malfunction), "Διαδικασία Επισκευής" (Repair Process) και "Ανατέθηκε σε" (Assigned To) με βάση τον επιλεγμένο Κωδικό Συναγερμού (Alarm Code).
+- **Διαχείριση Tag**: Έξυπνη εισαγωγή που δέχεται μεμονωμένα tags ή πολλαπλά χωρισμένα με κόμμα (π.χ. `101, 102, 103`) για άμεση δημιουργία πολλαπλών αναφορών.
+- **Υποστήριξη Offline**: Οι αναφορές αποθηκεύονται τοπικά εάν η συσκευή είναι εκτός σύνδεσης και συγχρονίζονται αυτόματα μόλις αποκατασταθεί η σύνδεση.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 📊 Πίνακας Ελέγχου & Αναλύσεις (Dashboard)
 
-## Learn More
+- **Οπτική Απεικόνιση**: Διαγράμματα και γραφήματα που εμφανίζουν τάσεις βλαβών, απόδοση συσκευών και συχνά προβλήματα.
+- **Προηγμένη Εξαγωγή**: Εξαγωγή σε **Excel (.xlsx)** με ένα κλικ, με επαγγελματικά διαμορφωμένα ξεχωριστά φύλλα για συσκευές ATIM και GATE.
+- **Πρόσβαση**: [Μετάβαση στο Dashboard](/dashboard)
 
-To learn more about Next.js, take a look at the following resources:
+### 🕒 Ιστορικό & Διαχείριση
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Πρόσφατες Αναφορές**: Προβολή των τελευταίων 10 υποβληθεισών αναφορών απευθείας μέσα στην εφαρμογή.
+- **Λειτουργία Διόρθωσης**: Εύκολη "Επεξεργασία" μιας υποβληθείσας αναφοράς. Το σύστημα διαχειρίζεται αυτόματα το ιστορικό αλλαγών (δημιουργώντας νέα εγγραφή και αφαιρώντας τη λανθασμένη), ενώ καταγράφει την ταυτότητα του χρήστη που έκανε τη διόρθωση.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🛠️ Τεχνολογίες
 
-## Deploy on Vercel
+- **Framework**: [Next.js 15](https://nextjs.org/) (React)
+- **Styling**: Vanilla CSS Modules (για ελαφρύ, προσαρμοσμένο σχεδιασμό)
+- **Icons**: Lucide React
+- **Backend / Βάση Δεδομένων**: Google Sheets (μέσω Google Apps Script API)
+- **Διαχείριση Κατάστασης**: React Hooks & Local Storage
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🚀 Οδηγίες Εγκατάστασης (Getting Started)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **Clone the repository**:
+
+    ```bash
+    git clone https://github.com/yourusername/afc-reports.git
+    cd afc-reports
+    ```
+
+2. **Install dependencies**:
+
+    ```bash
+    npm install
+    ```
+
+3. **Run the development server**:
+
+    ```bash
+    npm run dev
+    ```
+
+4. **Open the app**:
+    Ανοίξτε το [http://localhost:3000](http://localhost:3000)
+
+## 📂 Δομή Έργου
+
+- `/src/components/ReportForm.tsx` - Η κύρια φόρμα υποβολής.
+- `/src/app/dashboard/page.tsx` - Ο πίνακας ελέγχου (analytics).
+- `/src/lib/storage.ts` - Λογική τοπικής αποθήκευσης (offline capabilities).
+- `/src/app/api/` - API routes που λειτουργούν ως proxy προς το Google Script.
+
+## 🔗 Χρήσιμοι Σύνδεσμοι
+
+- **Κύριο Εργαλείο Αναφοράς**: `/`
+- **Dashboard**: [`/dashboard`](/dashboard)
+
+---
+*Κατασκευασμένο για αποδοτικότητα και αξιοπιστία στις λειτουργίες πεδίου.*
