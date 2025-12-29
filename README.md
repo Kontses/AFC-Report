@@ -67,6 +67,3 @@
 
 - **Κύριο Εργαλείο Αναφοράς**: [https://afc-report.vercel.app/](https://afc-report.vercel.app/)
 - **Dashboard**: [https://afc-report.vercel.app/dashboard](https://afc-report.vercel.app/dashboard)
-
----
-*Κατασκευασμένο για αποδοτικότητα και αξιοπιστία στις λειτουργίες πεδίου.*
