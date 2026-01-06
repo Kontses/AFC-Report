@@ -720,6 +720,7 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
                 "Coin Payment: Coinbox Full",
                 "Coin Payment: Deactivation",
                 "Coin Payment: Jammed Coins",
+                "Coin Payment: Stuck Coins in the Reserve Box",
                 "Coin Payment: Unauthorized Cashbox Withdrawal",
                 "CTD Link Failure",
                 "Current Status",
