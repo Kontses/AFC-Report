@@ -32,30 +32,6 @@
 - **Backend / Βάση Δεδομένων**: Google Sheets (μέσω Google Apps Script API)
 - **Διαχείριση Κατάστασης**: React Hooks & Local Storage
 
-## 🚀 Οδηγίες Εγκατάστασης (Getting Started)
-
-1. **Clone the repository**:
-
-    ```bash
-    git clone https://github.com/yourusername/afc-reports.git
-    cd afc-reports
-    ```
-
-2. **Install dependencies**:
-
-    ```bash
-    npm install
-    ```
-
-3. **Run the development server**:
-
-    ```bash
-    npm run dev
-    ```
-
-4. **Open the app**:
-    Ανοίξτε το [http://localhost:3000](http://localhost:3000)
-
 ## 📂 Δομή Έργου
 
 - `/src/components/ReportForm.tsx` - Η κύρια φόρμα υποβολής.
