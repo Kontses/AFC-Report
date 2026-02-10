@@ -7,7 +7,7 @@
   border: 1px solid var(--border);
   border-radius: 16px;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
-  width: 95%;
+  width: 100%;
   max-width: 600px;
   margin: 0 auto;
 }
@@ -15,10 +15,7 @@
 @media (max-width: 480px) {
   .form {
     padding: 1rem;
-    width: 100%;
-    border-radius: 0;
-    border: none;
-    box-shadow: none;
+    /* Maintain card look on mobile */
   }
 }
 

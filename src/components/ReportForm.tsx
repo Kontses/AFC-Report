@@ -3,15 +3,10 @@
 import React, { useState, useEffect } from "react";
 import styles from "./ReportForm.module.css";
 import { saveReportLocal } from "../lib/storage";
-import HistoryModal from "./HistoryModal";
+// import HistoryModal from "./HistoryModal"; // History replaced by external link
 import { Pencil } from "lucide-react";
 
-interface ReportFormProps {
-  isHistoryOpen: boolean;
-  onHistoryClose: () => void;
-}
-
-export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportFormProps) {
+export default function ReportForm() {
   const [formData, setFormData] = useState({
     reportBy: "Emmanouil Kazantzoglou",
     station: "1(NRS)",
@@ -434,11 +429,20 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
     });
   };
 
-  // --- History & Edit Logic ---
+  // --- History & Edit Logic (Deprecated / Replaced by Link) ---
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  /*
   const handleEditReport = (report: any) => {
     // Map API/Excel keys to form keys
+
+    // Handle malfunction mapping
+    // const malfunctionVal = report["Fault Description"] || report["malfunction"];
+    // ... (Logic commented out as requested)
+
+    // setIsEditMode(true);
+    // setEditingRowIndex(report.rowIndex); // Store the row index for updating
+    // setIsHistoryOpen(false); // Close modal
+
 
     const mappedData = {
       reportBy: report["Reported By"] || report.reportBy || "",
@@ -479,11 +483,12 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
     setFormData(mappedData);
     setIsEditMode(true);
     setAutoTime(false); // Disable auto-time to keep original date
-    onHistoryClose(); // Close modal using prop
+    // onHistoryClose(); // Close modal using prop
 
     // Scroll to top
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+  */
 
   const handleCancelEdit = () => {
     if (confirm("Cancel editing? Unsaved changes will be lost.")) {
@@ -644,11 +649,11 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
         </div>
       )}
 
-      <HistoryModal
-        isOpen={isHistoryOpen}
-        onClose={onHistoryClose}
-        onEdit={handleEditReport}
-      />
+      {/* <HistoryModal
+          isOpen={isHistoryOpen}
+          onClose={onHistoryClose}
+          onEdit={handleEditReport}
+        /> */}
 
       <form className={styles.form} onSubmit={handleSubmit}>
 
