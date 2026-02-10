@@ -5,11 +5,11 @@ import ReportForm from "../components/ReportForm";
 import PendingReports from "../components/PendingReports";
 import ThemeToggle from "../components/ThemeToggle";
 import styles from "./page.module.css";
-import { useState } from "react";
+
 import { History } from "lucide-react";
 
 export default function Home() {
-  const [historyOpen, setHistoryOpen] = useState(false);
+  // const [historyOpen, setHistoryOpen] = useState(false);
 
   return (
     <div className={styles.page}>
@@ -18,7 +18,7 @@ export default function Home() {
           <h1>AFC Report</h1>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <button
-              onClick={() => setHistoryOpen(true)}
+              onClick={() => window.open("https://docs.google.com/spreadsheets/d/1jGgQaW4m4ht5N9rVdho9VoeMfwkqVJvIQELNjQoOoj8/edit?usp=sharing", "_blank")}
               title="View History"
               style={{
                 background: "transparent",
@@ -43,8 +43,8 @@ export default function Home() {
       </header>
       <main className={styles.main}>
         <ReportForm
-          isHistoryOpen={historyOpen}
-          onHistoryClose={() => setHistoryOpen(false)}
+        // isHistoryOpen={historyOpen}
+        // onHistoryClose={() => setHistoryOpen(false)}
         />
         <PendingReports />
       </main>

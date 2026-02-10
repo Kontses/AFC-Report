@@ -1,16 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Dashboard3DCharts from "../../components/Dashboard3DCharts";
 import ExportButton from "../../components/ExportButton";
 import Link from "next/link";
-import { format, startOfMonth, parseISO, isWithinInterval, endOfDay, startOfDay, subMonths } from "date-fns";
+import { format, startOfMonth, parseISO, isWithinInterval, endOfDay, startOfDay } from "date-fns";
 import { ArrowLeft, Calendar } from "lucide-react";
 import ThemeToggle from "../../components/ThemeToggle";
 import { useTheme } from "../../components/ThemeProvider";
 
 export default function Dashboard() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [reports, setReports] = useState<any[]>([]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [filteredReports, setFilteredReports] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -33,13 +35,6 @@ export default function Dashboard() {
     const inputBg = isDark ? "rgba(15, 23, 42, 0.6)" : "#fff";
     const inputBorder = isDark ? "#334155" : "#cbd5e1";
 
-    useEffect(() => {
-        fetchData();
-    }, []);
-
-    useEffect(() => {
-        filterData();
-    }, [reports, startDate, endDate]);
 
     const fetchData = async () => {
         setLoading(true);
@@ -55,7 +50,7 @@ export default function Dashboard() {
         }
     };
 
-    const filterData = () => {
+    const filterData = useCallback(() => {
         if (!reports.length) return;
         const start = startOfDay(parseISO(startDate));
         const end = endOfDay(parseISO(endDate));
@@ -71,12 +66,22 @@ export default function Dashboard() {
                 }
                 if (isNaN(d.getTime())) return false;
                 return isWithinInterval(d, { start, end });
-            } catch (e) {
+            } catch {
                 return false;
             }
         });
         setFilteredReports(result);
-    };
+    }, [reports, startDate, endDate]);
+
+
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        filterData();
+    }, [filterData]);
 
     return (
         <div style={{
@@ -197,7 +202,7 @@ export default function Dashboard() {
                         <div className="loader">Loading Analytics...</div>
                     </div>
                 ) : (
-                    <Dashboard3DCharts reports={filteredReports} />
+                    <Dashboard3DCharts data={filteredReports} />
                 )}
 
             </div>

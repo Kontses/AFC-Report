@@ -6,10 +6,11 @@ import * as echarts from "echarts";
 import { useTheme } from "./ThemeProvider";
 
 interface Dashboard3DChartsProps {
-    reports: any[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: any[];
 }
 
-export default function Dashboard3DCharts({ reports }: Dashboard3DChartsProps) {
+export default function Dashboard3DCharts({ data }: Dashboard3DChartsProps) {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
 
@@ -42,7 +43,7 @@ export default function Dashboard3DCharts({ reports }: Dashboard3DChartsProps) {
         ];
 
         const sCounts: Record<string, number> = {};
-        reports.forEach(r => {
+        data.forEach(r => {
             const s = r.Station || "Unknown";
             sCounts[s] = (sCounts[s] || 0) + 1;
         });
@@ -53,7 +54,7 @@ export default function Dashboard3DCharts({ reports }: Dashboard3DChartsProps) {
 
         // Gate
         const gCounts: Record<string, number> = {};
-        reports.filter(r => r.Device === "GATE").forEach(r => {
+        data.filter(r => r.Device === "GATE").forEach(r => {
             const m = r.Malfunction || "Unknown";
             gCounts[m] = (gCounts[m] || 0) + 1;
         });
@@ -61,7 +62,7 @@ export default function Dashboard3DCharts({ reports }: Dashboard3DChartsProps) {
 
         // ATIM
         const aCounts: Record<string, number> = {};
-        reports.filter(r => r.Device === "ATIM").forEach(r => {
+        data.filter(r => r.Device === "ATIM").forEach(r => {
             const m = r.Malfunction || "Unknown";
             aCounts[m] = (aCounts[m] || 0) + 1;
         });
@@ -73,7 +74,7 @@ export default function Dashboard3DCharts({ reports }: Dashboard3DChartsProps) {
             gateData: gateProcessed,
             atimData: atimProcessed
         };
-    }, [reports]);
+    }, [data]);
 
     // --- CHART 1: STATION (Premium Gradient Bar) ---
     const barOption = {
@@ -132,77 +133,69 @@ export default function Dashboard3DCharts({ reports }: Dashboard3DChartsProps) {
     };
 
     // --- CHART 2 & 3: PIE (3D Donut style) ---
-    const getPieOption = (data: any[], colorStart: string, colorEnd: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const getPieOption = (data: any[]) => {
         const PIE_COLORS = [
             '#3b82f6', '#10b981', '#f59e0b', '#ef4444',
             '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'
         ];
 
         return {
-            backgroundColor: 'transparent',
-            // Title removed, handled via HTML for better alignment
             tooltip: {
                 trigger: 'item',
-                backgroundColor: tooltipBg,
-                borderColor: tooltipBorder,
-                textStyle: { color: textColor }
-            },
-            legend: {
-                type: 'scroll',
-                orient: 'vertical',
-                left: '55%', // Start slightly after middle
-                top: 'middle', // Vertically centered
-                bottom: 20,
-                textStyle: { color: subTextColor, fontSize: 12 }, // Larger font
-                pageTextStyle: { color: textColor },
-                formatter: (name: string) => {
-                    return name.length > 35 ? name.substr(0, 35) + '...' : name; // More chars
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                formatter: (params: any) => {
+                    return `<b>${params.name}</b><br/>${params.value} Reports (${params.percent}%)`;
                 },
-                tooltip: {
-                    show: true,
-                    backgroundColor: tooltipBg,
-                    borderColor: tooltipBorder,
-                    textStyle: { color: textColor },
-                    formatter: (params: any) => {
-                        // params is the legend name
-                        const name = typeof params === 'string' ? params : params.name;
-                        const itemIndex = data.findIndex(d => d.name === name);
-                        const item = data[itemIndex];
-                        const val = item ? item.value : '';
-                        const color = PIE_COLORS[itemIndex % PIE_COLORS.length];
-
-                        // Custom HTML to mimic the series tooltip
-                        return `
-                            <div style="font-size:12px;color:${subTextColor};margin-bottom:4px;font-weight:600">Malfunctions</div>
-                            <div style="display:flex;align-items:center;gap:8px;font-size:13px">
-                                <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background-color:${color};box-shadow: 0 0 5px ${color}"></span>
-                                <span>${name}</span>
-                                <span style="font-weight:bold;margin-left:auto">${val}</span>
-                            </div>
-                        `;
-                    }
+                backgroundColor: isDark ? 'rgba(30, 41, 59, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+                borderColor: isDark ? '#475569' : '#cbd5e1',
+                textStyle: {
+                    color: isDark ? '#fff' : '#1e293b'
                 }
             },
             series: [
                 {
                     name: 'Malfunctions',
                     type: 'pie',
-                    radius: ['45%', '70%'], // Thick Donut
-                    center: ['25%', '50%'], // Center of the Left Half (0-50%)
-                    color: PIE_COLORS, // Explicitly set colors
+                    radius: ['40%', '70%'],
+                    center: ['50%', '50%'],
+                    avoidLabelOverlap: false,
                     itemStyle: {
-                        borderRadius: 8,
-                        borderColor: isDark ? '#1e293b' : '#fff', // Match card bg
-                        borderWidth: 3,
-                        shadowBlur: 10,
-                        shadowColor: 'rgba(0, 0, 0, 0.2)'
+                        borderRadius: 10,
+                        borderColor: isDark ? '#0b1120' : '#fff',
+                        borderWidth: 2
                     },
-                    label: { show: false },
-                    data: data
+                    label: {
+                        show: false,
+                        position: 'center'
+                    },
+                    emphasis: {
+                        label: {
+                            show: true,
+                            fontSize: 20,
+                            fontWeight: 'bold',
+                            color: isDark ? '#fff' : '#1e293b'
+                        },
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    },
+                    labelLine: {
+                        show: false
+                    },
+                    data: Object.entries(data).map(([name, value], index) => ({
+                        value,
+                        name,
+                        itemStyle: { color: PIE_COLORS[index % PIE_COLORS.length] }
+                    }))
                 }
             ]
         };
     };
+
+
 
     return (
         <div className="charts-container" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -239,7 +232,7 @@ export default function Dashboard3DCharts({ reports }: Dashboard3DChartsProps) {
                         <div style={{ width: '4px', height: '24px', background: '#3b82f6', borderRadius: '2px' }}></div>
                         Gate Malfunctions
                     </h3>
-                    <ReactECharts option={getPieOption(gateData, '#3b82f6', '#2563eb')} style={{ height: '320px' }} />
+                    <ReactECharts option={getPieOption(gateData)} style={{ height: '320px' }} />
                 </div>
 
                 {/* ATIM Pie */}
@@ -255,7 +248,7 @@ export default function Dashboard3DCharts({ reports }: Dashboard3DChartsProps) {
                         <div style={{ width: '4px', height: '24px', background: '#10b981', borderRadius: '2px' }}></div>
                         ATIM Malfunctions
                     </h3>
-                    <ReactECharts option={getPieOption(atimData, '#10b981', '#059669')} style={{ height: '320px' }} />
+                    <ReactECharts option={getPieOption(atimData)} style={{ height: '320px' }} />
                 </div>
 
             </div>
