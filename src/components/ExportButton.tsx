@@ -6,6 +6,7 @@ import { saveAs } from "file-saver";
 import { Download } from "lucide-react";
 
 interface ExportButtonProps {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     reports: any[];
     startDate: string;
     endDate: string;
@@ -22,11 +23,12 @@ export default function ExportButton({ reports, startDate, endDate }: ExportButt
         const workbook = new ExcelJS.Workbook();
 
         // Helper function to create and style a sheet
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const createSheet = (sheetName: string, data: any[]) => {
             const worksheet = workbook.addWorksheet(sheetName);
 
-            // Define Columns
-            worksheet.columns = [
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const columns: any[] = [
                 { header: "Reported By", key: "Reported By", width: 25 },
                 { header: "Date", key: "Date", width: 22, style: { numFmt: 'dd/mm/yyyy hh:mm AM/PM' } },
                 { header: "Station", key: "Station", width: 15 },
@@ -41,6 +43,7 @@ export default function ExportButton({ reports, startDate, endDate }: ExportButt
                 { header: "Final Result", key: "Final Result", width: 20 },
                 { header: "Comments", key: "Comments", width: 40 },
             ];
+            worksheet.columns = columns;
 
             // Add Data
             data.forEach((report) => {

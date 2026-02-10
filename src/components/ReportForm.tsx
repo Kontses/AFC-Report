@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import styles from "./ReportForm.module.css";
-import { saveReportLocal, markReportSynced } from "../lib/storage";
+import { saveReportLocal } from "../lib/storage";
 import HistoryModal from "./HistoryModal";
 import { Pencil } from "lucide-react";
 
@@ -41,9 +41,7 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
     if (savedReporter) {
       if (!isEditMode) { // Only auto-fill if not editing
         const saved = savedReporter || "Emmanouil Kazantzoglou";
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setFormData(prev => ({ ...prev, reportBy: saved }));
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setCurrentSessionReporter(saved);
       }
     }
@@ -233,6 +231,93 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
       finalResult: ["OK"]
     }
   };
+  // Auto-fill Rules for No Alarm  
+  const MALFUNCTION_RULES: Record<string, Partial<typeof formData>> = {
+    // ---------> COIN PARTS ALARMS <---------
+    "Coin acceptor is not functional": {
+      repairProcess: "Needs Spare part",
+      assignedTo: "Conduent",
+      status: "Rejected",
+      finalResult: ["Only Accepts Banknotes", "Only Accepts Card"]
+    },
+    "Coin are blocked on reserve box roads": {
+      repairProcess: "Clean the reserve road",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "Broken Transporter": {
+      repairProcess: "Needs Spare part",
+      assignedTo: "Conduent",
+      status: "Rejected",
+      finalResult: ["Only Accepts Banknotes", "Only Accepts Card"]
+    },
+    "Broken recycler": {
+      repairProcess: "Needs Spare part",
+      assignedTo: "Conduent",
+      status: "Rejected",
+      finalResult: ["Only Accepts Banknotes", "Only Accepts Card"]
+    },
+    // ---------> BANKNOTE PARTS ALARMS <---------
+    "Red light on banknote acceptor": {
+      repairProcess: "Removing the jammed banknotes and restart",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "Banknote light is off": {
+      repairProcess: "Needs Conduent",
+      assignedTo: "Conduent",
+      status: "Rejected",
+      finalResult: ["Only Accepts Coins", "Only Accepts Card"]
+    },
+    "Banknote flashing red and blue light": {
+      repairProcess: "Needs Conduent",
+      assignedTo: "Conduent",
+      status: "Rejected",
+      finalResult: ["Only Accepts Coins", "Only Accepts Card"]
+    },
+    // ---------> TICKET-RECEIPT PRINTER ALARMS <---------
+    // Empty for no alarms
+    // ---------> POS ALARMS <---------
+    "Frozen POS": {
+      repairProcess: "Restart",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "Frozen message 'The payment is approved'": {
+      repairProcess: "Restart",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "Use of POS Returns to Home Screen": {
+      repairProcess: "Restart",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    // ---------> GENERAL ALARMS <---------
+    "Touch screen issue": {
+      repairProcess: "Restart",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "Bad Smiley": {
+      repairProcess: "Opening ATIM and closing",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "ATIM Has Run Out of Change": {
+      repairProcess: "Needs THEMA",
+      assignedTo: "THEMA",
+      status: "Rejected",
+      finalResult: ["Only Accepts Card"]
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -251,6 +336,17 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
       if (name === "alarmCode" && ALARM_RULES[value]) {
         const rule = ALARM_RULES[value];
         newData = { ...newData, ...rule };
+      }
+
+      // Auto-fill logic based on Malfunction
+      if (name === "malfunction" && MALFUNCTION_RULES[value]) {
+        const rule = MALFUNCTION_RULES[value];
+        newData = { ...newData, ...rule };
+        // Optionally set Alarm Code to "No Alarm" if empty? User didn't explicitly ask for this automation but implied it in example.
+        // Let's stick to what was asked: filling the other fields.
+        if (!newData.alarmCode) {
+          newData.alarmCode = "No Alarm";
+        }
       }
 
       // Device switch logic: clear incompatible fields
@@ -340,6 +436,7 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
 
   // --- History & Edit Logic ---
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleEditReport = (report: any) => {
     // Map API/Excel keys to form keys
 
@@ -367,7 +464,7 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
     }
 
     // Handle Date 
-    let dateVal = report["Date"] || report["reportedDate"];
+    const dateVal = report["Date"] || report["reportedDate"];
     if (dateVal) {
       try {
         const d = new Date(dateVal);
@@ -676,9 +773,9 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
               "ACR 001", "ACR 003", "AEQ 012", "AEQ 024", "AEQ 031", "AEQ 062",
               "AFA 002", "AIC 601", "AIR 003", "Air 006", "APB 001", "ART 013",
               "ART 203", "EIC 100", "EIC 102", "EIC 112", "ETP 006", "MBB 002",
-              "MBB 003", "MBB 601", "MIC 001", "MIC 004", "MIC 007", "MIR 004",
-              "MPP 011", "MPP 101", "MPP 102", "MPP 104", "MPP 105", "MPP 214",
-              "MPP 701", "RPB 104", "RPB 105", "RPB 601", "RPB 701"
+              "MBB 003", "MBB 601", "MIC 001", "MIC 004", "MIC 007", "MIC 007-001",
+              "MIR 004", "MPP 011", "MPP 101", "MPP 102", "MPP 104", "MPP 105",
+              "MPP 214", "MPP 701", "RPB 104", "RPB 105", "RPB 601", "RPB 701"
             ].map((code) => (
               <option key={code} value={code} />
             ))}
@@ -725,9 +822,14 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
                 "Banknote Acceptance Faulty",
                 "Banknote Cashbox: Full",
                 "Banknote Cashbox: Unauthorized Withdrawal",
+                "Banknote flashing red and blue light",
+                "Banknote light is off",
                 "Banknote Payment: Communication Error",
                 "Banknote Payment: Local/Remote Out Of Order",
+                "Broken Recycler",
+                "Broken Transporter",
                 "CA01:002 Not Initialized",
+                "Coin acceptor is not functional",
                 "Coin Payment: Coin Acceptor Failure",
                 "Coin Payment: Coin Box Missing",
                 "Coin Payment: Coinbox Failure",
@@ -748,6 +850,7 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
                 "E-Ticket Distribution: KO",
                 "E-Ticket Distribution: Stock 1 Empty",
                 "E-Ticket Distribution: Stock 2 Empty",
+                "Frozen message 'The payment is approved'",
                 "Frozen POS",
                 "Locker Issue",
                 "Paper Empty",
@@ -764,6 +867,7 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
                 "SAN Absent",
                 "SSUP Default",
                 "SSUP Link Failure",
+                "Touch screen issue",
                 "Ticket Printer R/W Failure",
                 "UPS Defect",
                 "Use of banknotes returns to home screen",

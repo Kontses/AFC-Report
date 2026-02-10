@@ -6,10 +6,12 @@ import { X, Edit2, Loader2 } from "lucide-react";
 interface HistoryModalProps {
     isOpen: boolean;
     onClose: () => void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onEdit: (report: any) => void;
 }
 
 export default function HistoryModal({ isOpen, onClose, onEdit }: HistoryModalProps) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [reports, setReports] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
