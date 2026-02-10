@@ -224,6 +224,63 @@ export default function ReportForm() {
       assignedTo: "TRAXIS ENGINEERING",
       status: "Solved",
       finalResult: ["OK"]
+    },
+    // ---------> GATE ALARMS <---------
+    "CA01:1111": {
+      malfunction: "Validator link error",
+      repairProcess: "Unplug X1 or Shutdown/Startup",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "CA01:1200": {
+      malfunction: "Contactless error",
+      repairProcess: "Unplug X1 or Shutdown/Startup",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "CA01:1250": {
+      malfunction: "Not Initialized",
+      repairProcess: "Shutdown/Startup",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "EQ01:4024": {
+      malfunction: "Outage by SSUP Command",
+      repairProcess: "Put Gate in service by Atlas",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "FP01:6001": {
+      malfunction: "Configuration Out of Date",
+      repairProcess: "Reinstall software on Master and Slave",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "FP01:6002": {
+      malfunction: "No Configuration",
+      repairProcess: "Check the communication cable and Shutdown/Startup",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "PA01:7033": {
+      malfunction: "Sensor Default",
+      repairProcess: "Check sensors/Check if the glass is dirty",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "PA01:7034": {
+      malfunction: "Engine Defect",
+      repairProcess: "Check for broke mechanical parts or learning",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
     }
   };
   // Auto-fill Rules for No Alarm  
@@ -349,9 +406,9 @@ export default function ReportForm() {
         if (value !== "GATE") {
           newData.impact = ""; // Clear Impact if not GATE
         }
-        if (value !== "ATIM") {
-          newData.alarmCode = ""; // Clear Alarm Code if not ATIM
-        }
+        // if (value !== "ATIM") {
+        //   newData.alarmCode = ""; // Clear Alarm Code if not ATIM
+        // }
       }
 
       // Save persistent fields to local storage (only if not editing)
@@ -769,21 +826,43 @@ export default function ReportForm() {
             value={formData.alarmCode}
             onChange={handleChange}
             list="alarmCodes"
-            disabled={formData.device !== 'ATIM'}
-            placeholder={formData.device !== 'ATIM' ? "N/A" : ""}
+          // disabled={formData.device !== 'ATIM'}
+          // placeholder={formData.device !== 'ATIM' ? "N/A" : ""}
           />
           <datalist id="alarmCodes">
-            {[
-              "No Alarm",
-              "ACR 001", "ACR 003", "AEQ 012", "AEQ 024", "AEQ 031", "AEQ 062",
-              "AFA 002", "AIC 601", "AIR 003", "Air 006", "APB 001", "ART 013",
-              "ART 203", "EIC 100", "EIC 102", "EIC 112", "ETP 006", "MBB 002",
-              "MBB 003", "MBB 601", "MIC 001", "MIC 004", "MIC 007", "MIC 007-001",
-              "MIR 004", "MPP 011", "MPP 101", "MPP 102", "MPP 104", "MPP 105",
-              "MPP 214", "MPP 701", "RPB 104", "RPB 105", "RPB 601", "RPB 701"
-            ].map((code) => (
-              <option key={code} value={code} />
-            ))}
+            {(() => {
+              const ATIM_ALARMS = [
+                "ACR 001", "ACR 003", "AEQ 012", "AEQ 024", "AEQ 031", "AEQ 062",
+                "AFA 002", "AIC 601", "AIR 003", "Air 006", "APB 001", "ART 013",
+                "ART 203", "EIC 100", "EIC 102", "EIC 112", "ETP 006", "MBB 002",
+                "MBB 003", "MBB 601", "MIC 001", "MIC 004", "MIC 007", "MIC 007-001",
+                "MIR 004", "MPP 011", "MPP 101", "MPP 102", "MPP 104", "MPP 105",
+                "MPP 214", "MPP 701", "RPB 104", "RPB 105", "RPB 601", "RPB 701"
+              ];
+
+              const GATE_ALARMS = [
+                "CA01:1111", "CA01:1200", "CA01:1250", "EQ01:4024",
+                "FP01:6001", "FP01:6002", "PA01:7033", "PA01:7034"
+              ]; // Sorted numerically/alphabetically
+
+              let availableAlarms = ["No Alarm"];
+
+              if (formData.device === "ATIM") {
+                availableAlarms = [...availableAlarms, ...ATIM_ALARMS];
+              } else if (formData.device === "GATE") {
+                availableAlarms = [...availableAlarms, ...GATE_ALARMS];
+              }
+              // If device is ATLAS or other, maybe show all or just No Alarm?
+              // Assuming ATLAS might use one of them or just No Alarm. 
+              // For now, let's include ATIM alarms for ATLAS as fallback or just No Alarm based on user request?
+              // User said "who is for ATIM, who is for GATE". 
+              // Let's safe-guard: if device is neither, show specific list or just No Alarm. 
+              // Current logic: ATIM -> ATIM_ALARMS, GATE -> GATE_ALARMS.
+
+              return availableAlarms.map((code) => (
+                <option key={code} value={code} />
+              ));
+            })()}
           </datalist>
         </div>
 
