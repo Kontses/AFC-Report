@@ -153,6 +153,13 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
       status: "Solved",
       finalResult: ["OK"]
     },
+    "MIC 007-001": {
+      malfunction: "Permanent issue - no printing",
+      repairProcess: "Needs Spare Part",
+      assignedTo: "Conduent",
+      status: "Rejected",
+      finalResult: ["OK"]
+    },
     "EIC 100": {
       malfunction: "E-Ticket distribution : Completely empty",
       repairProcess: "Needs ΤΗΕΜΑ",
@@ -206,7 +213,7 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
     },
     "AEQ 062": {
       malfunction: "SSUP Default",
-      repairProcess: "AFA002",
+      repairProcess: "Unplug cable of UPS",
       assignedTo: "TRAXIS ENGINEERING",
       status: "Solved",
       finalResult: ["OK"]
@@ -214,6 +221,13 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
     "ART 13": {
       malfunction: "Forgot card",
       repairProcess: "Opening and closing Atim",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "AFA 002": {
+      malfunction: "Amount of sales reached",
+      repairProcess: "Concentration call",
       assignedTo: "TRAXIS ENGINEERING",
       status: "Solved",
       finalResult: ["OK"]
