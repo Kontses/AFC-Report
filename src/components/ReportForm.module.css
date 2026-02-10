@@ -7,8 +7,19 @@
   border: 1px solid var(--border);
   border-radius: 16px;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+  width: 95%;
   max-width: 600px;
   margin: 0 auto;
+}
+
+@media (max-width: 480px) {
+  .form {
+    padding: 1rem;
+    width: 100%;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+  }
 }
 
 .form h2 {
@@ -56,6 +67,7 @@
   color: var(--foreground);
   transition: all 0.2s;
   width: 100%;
+  max-width: 100%;
 }
 
 .form input:disabled,
