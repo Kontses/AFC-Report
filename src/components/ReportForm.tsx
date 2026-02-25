@@ -3,10 +3,15 @@
 import React, { useState, useEffect } from "react";
 import styles from "./ReportForm.module.css";
 import { saveReportLocal } from "../lib/storage";
-// import HistoryModal from "./HistoryModal"; // History replaced by external link
+import HistoryModal from "./HistoryModal";
 import { Pencil } from "lucide-react";
 
-export default function ReportForm() {
+interface ReportFormProps {
+  isHistoryOpen: boolean;
+  onHistoryClose: () => void;
+}
+
+export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportFormProps) {
   const [formData, setFormData] = useState({
     reportBy: "Emmanouil Kazantzoglou",
     station: "1(NRS)",
@@ -519,21 +524,11 @@ export default function ReportForm() {
     });
   };
 
-  // --- History & Edit Logic (Deprecated / Replaced by Link) ---
+  // --- History & Edit Logic ---
 
-  /*
   const handleEditReport = (report: any) => {
     // Map API/Excel keys to form keys
-  
-    // Handle malfunction mapping
-    // const malfunctionVal = report["Fault Description"] || report["malfunction"];
-    // ... (Logic commented out as requested)
-  
-    // setIsEditMode(true);
-    // setEditingRowIndex(report.rowIndex); // Store the row index for updating
-    // setIsHistoryOpen(false); // Close modal
-  
-  
+
     const mappedData = {
       reportBy: report["Reported By"] || report.reportBy || "",
       station: report["Station"] || report.station || "",
@@ -549,14 +544,14 @@ export default function ReportForm() {
       comments: report["Comments"] || report.comments || "",
       reportedDate: ""
     };
-  
+
     // Capture Row Index if available (from new GAS script)
     if (report._rowIndex) {
       setEditingRowIndex(report._rowIndex);
     } else {
       setEditingRowIndex(null);
     }
-  
+
     // Handle Date 
     const dateVal = report["Date"] || report["reportedDate"];
     if (dateVal) {
@@ -569,16 +564,15 @@ export default function ReportForm() {
         mappedData.reportedDate = "";
       }
     }
-  
+
     setFormData(mappedData);
     setIsEditMode(true);
     setAutoTime(false); // Disable auto-time to keep original date
-    // onHistoryClose(); // Close modal using prop
-  
+    onHistoryClose(); // Close modal using prop
+
     // Scroll to top
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-  */
 
   const handleCancelEdit = () => {
     if (confirm("Cancel editing? Unsaved changes will be lost.")) {
@@ -739,11 +733,11 @@ export default function ReportForm() {
         </div>
       )}
 
-      {/* <HistoryModal
-          isOpen={isHistoryOpen}
-          onClose={onHistoryClose}
-          onEdit={handleEditReport}
-        /> */}
+      <HistoryModal
+        isOpen={isHistoryOpen}
+        onClose={onHistoryClose}
+        onEdit={handleEditReport}
+      />
 
       <form className={styles.form} onSubmit={handleSubmit}>
 
