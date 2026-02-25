@@ -6,8 +6,61 @@ import styles from "./ThemeToggle.module.css";
 export default function ThemeToggle() {
     const { theme, toggleTheme } = useTheme();
 
+    const handleToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
+        const x = e.clientX;
+        const y = e.clientY;
+
+        const endRadius = Math.hypot(
+            Math.max(x, window.innerWidth - x),
+            Math.max(y, window.innerHeight - y)
+        );
+
+        // TypeScript might not know about startViewTransition yet
+        if (!("startViewTransition" in document)) {
+            toggleTheme();
+            return;
+        }
+
+        const isDark = theme === "dark";
+
+        if (!isDark) {
+            document.documentElement.classList.add("dark-transition");
+        }
+
+        // @ts-ignore
+        const transition = document.startViewTransition(() => {
+            toggleTheme();
+        });
+
+        transition.ready.then(() => {
+            const clipPath = [
+                `circle(0px at ${x}px ${y}px)`,
+                `circle(${endRadius}px at ${x}px ${y}px)`,
+            ];
+
+            document.documentElement.animate(
+                {
+                    clipPath: isDark ? clipPath : [...clipPath].reverse(),
+                },
+                {
+                    duration: 500,
+                    easing: "ease-in-out",
+                    fill: "forwards",
+                    pseudoElement: isDark
+                        ? "::view-transition-new(root)"
+                        : "::view-transition-old(root)",
+                }
+            );
+        });
+
+        // @ts-ignore
+        transition.finished.then(() => {
+            document.documentElement.classList.remove("dark-transition");
+        });
+    };
+
     return (
-        <button onClick={toggleTheme} className={styles.toggle} aria-label="Toggle Theme" data-version="2">
+        <button onClick={handleToggle} className={styles.toggle} aria-label="Toggle Theme" data-version="2">
             {theme === "dark" ? (
                 // Sun Icon
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

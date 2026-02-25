@@ -247,6 +247,13 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
       status: "Solved",
       finalResult: ["OK"]
     },
+    "CA01:1202": {
+      malfunction: "SAM Error",
+      repairProcess: "Unplug X1 or Shutdown/Startup",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
     "CA01:1250": {
       malfunction: "Not Initialized",
       repairProcess: "Shutdown/Startup",
