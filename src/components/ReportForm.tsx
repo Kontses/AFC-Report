@@ -162,15 +162,17 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
       malfunction: "E-Ticket distribution : Completely empty",
       repairProcess: "Needs ΤΗΕΜΑ",
       assignedTo: "THEMA",
-      status: "Rejected",
-      finalResult: ["OK"]
+      status: "Solved",
+      finalResult: ["OK"],
+      comments: "Repaired by TRAXIS"
     },
     "EIR 003": {
       malfunction: "Paper empty",
       repairProcess: "Needs ΤΗΕΜΑ",
       assignedTo: "THEMA",
-      status: "Rejected",
-      finalResult: ["OK"]
+      status: "Solved",
+      finalResult: ["OK"],
+      comments: "Repaired by TRAXIS"
     },
     "MIR 004": {
       malfunction: "Printer Jamming",
@@ -323,7 +325,7 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
       status: "Rejected",
       finalResult: ["Only Accepts Banknotes", "Only Accepts Card"]
     },
-    "Broken recycler": {
+    "Broken Recycler": {
       repairProcess: "Needs Spare part",
       assignedTo: "Conduent",
       status: "Rejected",
@@ -923,6 +925,7 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
               const COMMON = [
                 "Out Of Power",
                 "Out of Order on ATLAS",
+                "Out Of Service",
                 "Out Of Service Done By Agent",
                 "Reboot By Itself",
                 "Screen Freeze"
@@ -933,10 +936,13 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
                 "Broken Gate",
                 "Concentrator Link Error",
                 "Doors remain open",
+                "Gate starting up zero POS",
                 "Incorrect Configuration",
                 "Network Card Default",
                 "Red X",
                 "SAM Error",
+                "Spring or bearing is broken",
+                "Validator faig is blinking",
                 "Validator Light Is Off",
                 "Validator Link Error",
                 "Validator Not Readable",
@@ -957,6 +963,7 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
                 "Broken Transporter",
                 "CA01:002 Not Initialized",
                 "Coin acceptor is not functional",
+                "Coin are blocked on reserve box roads",
                 "Coin Payment: Coin Acceptor Failure",
                 "Coin Payment: Coin Box Missing",
                 "Coin Payment: Coinbox Failure",
