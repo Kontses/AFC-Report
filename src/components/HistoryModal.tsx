@@ -75,7 +75,7 @@ export default function HistoryModal({ isOpen, onClose, onEdit }: HistoryModalPr
                     justifyContent: "space-between",
                     alignItems: "center"
                 }}>
-                    <h2 style={{ fontSize: "1.25rem", fontWeight: "bold" }}>Recent History (Last 10)</h2>
+                    <h2 style={{ fontSize: "1.25rem", fontWeight: "bold" }}>Recent History</h2>
                     <button
                         onClick={onClose}
                         style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--muted-foreground, #64748b)" }}

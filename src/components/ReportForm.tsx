@@ -3,10 +3,15 @@
 import React, { useState, useEffect } from "react";
 import styles from "./ReportForm.module.css";
 import { saveReportLocal } from "../lib/storage";
-// import HistoryModal from "./HistoryModal"; // History replaced by external link
+import HistoryModal from "./HistoryModal";
 import { Pencil } from "lucide-react";
 
-export default function ReportForm() {
+interface ReportFormProps {
+  isHistoryOpen: boolean;
+  onHistoryClose: () => void;
+}
+
+export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportFormProps) {
   const [formData, setFormData] = useState({
     reportBy: "Emmanouil Kazantzoglou",
     station: "1(NRS)",
@@ -157,15 +162,17 @@ export default function ReportForm() {
       malfunction: "E-Ticket distribution : Completely empty",
       repairProcess: "Needs ΤΗΕΜΑ",
       assignedTo: "THEMA",
-      status: "Rejected",
-      finalResult: ["OK"]
+      status: "Solved",
+      finalResult: ["OK"],
+      comments: "Repaired by TRAXIS"
     },
     "EIR 003": {
       malfunction: "Paper empty",
       repairProcess: "Needs ΤΗΕΜΑ",
       assignedTo: "THEMA",
-      status: "Rejected",
-      finalResult: ["OK"]
+      status: "Solved",
+      finalResult: ["OK"],
+      comments: "Repaired by TRAXIS"
     },
     "MIR 004": {
       malfunction: "Printer Jamming",
@@ -254,6 +261,13 @@ export default function ReportForm() {
       status: "Solved",
       finalResult: ["OK"]
     },
+    "EQ01:4090": {
+      malfunction: "Network Card Default",
+      repairProcess: "Unplug X1 or Shutdown/Startup",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
     "FP01:6001": {
       malfunction: "Configuration Out of Date",
       repairProcess: "Reinstall software on Master and Slave",
@@ -292,6 +306,13 @@ export default function ReportForm() {
       status: "Rejected",
       finalResult: ["Only Accepts Banknotes", "Only Accepts Card"]
     },
+    "Coin Payment: Jammed Coins": {
+      alarmCode: "No Alarm",
+      repairProcess: "Test Coin parts",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
     "Coin are blocked on reserve box roads": {
       repairProcess: "Clean the reserve road",
       assignedTo: "TRAXIS ENGINEERING",
@@ -304,7 +325,7 @@ export default function ReportForm() {
       status: "Rejected",
       finalResult: ["Only Accepts Banknotes", "Only Accepts Card"]
     },
-    "Broken recycler": {
+    "Broken Recycler": {
       repairProcess: "Needs Spare part",
       assignedTo: "Conduent",
       status: "Rejected",
@@ -519,21 +540,11 @@ export default function ReportForm() {
     });
   };
 
-  // --- History & Edit Logic (Deprecated / Replaced by Link) ---
+  // --- History & Edit Logic ---
 
-  /*
   const handleEditReport = (report: any) => {
     // Map API/Excel keys to form keys
-  
-    // Handle malfunction mapping
-    // const malfunctionVal = report["Fault Description"] || report["malfunction"];
-    // ... (Logic commented out as requested)
-  
-    // setIsEditMode(true);
-    // setEditingRowIndex(report.rowIndex); // Store the row index for updating
-    // setIsHistoryOpen(false); // Close modal
-  
-  
+
     const mappedData = {
       reportBy: report["Reported By"] || report.reportBy || "",
       station: report["Station"] || report.station || "",
@@ -549,14 +560,14 @@ export default function ReportForm() {
       comments: report["Comments"] || report.comments || "",
       reportedDate: ""
     };
-  
+
     // Capture Row Index if available (from new GAS script)
     if (report._rowIndex) {
       setEditingRowIndex(report._rowIndex);
     } else {
       setEditingRowIndex(null);
     }
-  
+
     // Handle Date 
     const dateVal = report["Date"] || report["reportedDate"];
     if (dateVal) {
@@ -569,16 +580,15 @@ export default function ReportForm() {
         mappedData.reportedDate = "";
       }
     }
-  
+
     setFormData(mappedData);
     setIsEditMode(true);
     setAutoTime(false); // Disable auto-time to keep original date
-    // onHistoryClose(); // Close modal using prop
-  
+    onHistoryClose(); // Close modal using prop
+
     // Scroll to top
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-  */
 
   const handleCancelEdit = () => {
     if (confirm("Cancel editing? Unsaved changes will be lost.")) {
@@ -739,11 +749,11 @@ export default function ReportForm() {
         </div>
       )}
 
-      {/* <HistoryModal
-          isOpen={isHistoryOpen}
-          onClose={onHistoryClose}
-          onEdit={handleEditReport}
-        /> */}
+      <HistoryModal
+        isOpen={isHistoryOpen}
+        onClose={onHistoryClose}
+        onEdit={handleEditReport}
+      />
 
       <form className={styles.form} onSubmit={handleSubmit}>
 
@@ -875,8 +885,9 @@ export default function ReportForm() {
 
               const GATE_ALARMS = [
                 "CA01:1111", "CA01:1200", "CA01:1250", "EQ01:4024",
-                "FP01:6001", "FP01:6002", "PA01:7033", "PA01:7034"
-              ]; // Sorted numerically/alphabetically
+                "EQ01:4090", "FP01:6001", "FP01:6002", "PA01:7033",
+                "PA01:7034"
+              ];
 
               let availableAlarms = ["No Alarm"];
 
@@ -914,6 +925,7 @@ export default function ReportForm() {
               const COMMON = [
                 "Out Of Power",
                 "Out of Order on ATLAS",
+                "Out Of Service",
                 "Out Of Service Done By Agent",
                 "Reboot By Itself",
                 "Screen Freeze"
@@ -924,9 +936,13 @@ export default function ReportForm() {
                 "Broken Gate",
                 "Concentrator Link Error",
                 "Doors remain open",
+                "Gate starting up zero POS",
                 "Incorrect Configuration",
+                "Network Card Default",
                 "Red X",
                 "SAM Error",
+                "Spring or bearing is broken",
+                "Validator faig is blinking",
                 "Validator Light Is Off",
                 "Validator Link Error",
                 "Validator Not Readable",
@@ -947,6 +963,7 @@ export default function ReportForm() {
                 "Broken Transporter",
                 "CA01:002 Not Initialized",
                 "Coin acceptor is not functional",
+                "Coin are blocked on reserve box roads",
                 "Coin Payment: Coin Acceptor Failure",
                 "Coin Payment: Coin Box Missing",
                 "Coin Payment: Coinbox Failure",
@@ -1116,7 +1133,40 @@ export default function ReportForm() {
         </div>
 
         <div className={styles.group}>
-          <label htmlFor="comments">Comments</label>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: "0.5rem" }}>
+            <label htmlFor="comments" style={{ marginBottom: 0 }}>Comments</label>
+            <select
+              value=""
+              onChange={(e) => {
+                if (!e.target.value) return;
+                const newComment = e.target.value;
+                setFormData(prev => ({
+                  ...prev,
+                  comments: prev.comments ? `${prev.comments}, ${newComment}` : newComment
+                }));
+              }}
+              style={{
+                padding: "0.25rem 0.5rem",
+                borderRadius: "4px",
+                backgroundColor: "var(--input-bg)",
+                color: "var(--foreground)",
+                border: "1px solid var(--border)",
+                fontSize: "0.85rem",
+                cursor: "pointer",
+                maxWidth: "60%"
+              }}
+            >
+              <option value="" disabled>+ Add...</option>
+              {formData.device === "ATIM" && <option value="5€ stack inside">5€ stack inside</option>}
+              {formData.device === "ATIM" && <option value="10€ stack inside">10€ stack inside</option>}
+              {formData.device === "ATIM" && <option value="20€ stack inside">20€ stack inside</option>}
+              {formData.device === "ATIM" && <option value="All POS terminals in the station froze at the same time on the transaction “Transaction approved”">All POS terminals in the station froze...</option>}
+              {formData.device === "GATE" && <option value="Cleaning the SIM card">Cleaning the SIM card</option>}
+              {formData.device === "GATE" && <option value="Dump files collected">Dump files collected</option>}
+              {formData.device === "ATIM" && <option value="Log files sent to Mellon">Log files sent to Mellon</option>}
+              {formData.device === "ATIM" && <option value="Repaired by TRAXIS">Repaired by TRAXIS</option>}
+            </select>
+          </div>
           <textarea id="comments" name="comments" value={formData.comments} onChange={handleChange} rows={3} />
         </div>
 
