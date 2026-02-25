@@ -67,6 +67,10 @@
   max-width: 100%;
 }
 
+.largeInput {
+  height: 80px;
+}
+
 .form input:disabled,
 .form select:disabled,
 .form textarea:disabled {
