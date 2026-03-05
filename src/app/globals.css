@@ -74,6 +74,7 @@ button {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -81,4 +82,19 @@ button {
 
 .animate-spin {
   animation: spin 1s linear infinite;
+}
+
+/* --- Theme Toggle Circular Reveal --- */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+.dark-transition::view-transition-old(root) {
+  z-index: 9999;
+}
+
+.dark-transition::view-transition-new(root) {
+  z-index: 1;
 }
