@@ -1,9 +1,8 @@
 "use client";
 
-import React from "react";
-import ExcelJS from "exceljs";
+import React, { useState } from "react";
 import { saveAs } from "file-saver";
-import { Download } from "lucide-react";
+import { Download, Loader2 } from "lucide-react";
 
 interface ExportButtonProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -13,6 +12,7 @@ interface ExportButtonProps {
 }
 
 export default function ExportButton({ reports, startDate, endDate }: ExportButtonProps) {
+    const [isExporting, setIsExporting] = useState(false);
 
     const handleExport = async () => {
         if (reports.length === 0) {
@@ -20,121 +20,40 @@ export default function ExportButton({ reports, startDate, endDate }: ExportButt
             return;
         }
 
-        const workbook = new ExcelJS.Workbook();
-
-        // Helper function to create and style a sheet
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const createSheet = (sheetName: string, data: any[]) => {
-            const worksheet = workbook.addWorksheet(sheetName);
-
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const columns: any[] = [
-                { header: "Reported By", key: "Reported By", width: 25 },
-                { header: "Date", key: "Date", width: 22, style: { numFmt: 'dd/mm/yyyy hh:mm AM/PM' } },
-                { header: "Station", key: "Station", width: 15 },
-                { header: "Device", key: "Device", width: 10 },
-                { header: "Tag", key: "Tag", width: 10 },
-                { header: "Status", key: "Status", width: 15 },
-                { header: "Alarm Code", key: "Alarm Code", width: 15 },
-                { header: "Malfunction", key: "Malfunction", width: 40 },
-                { header: "Impact", key: "Impact", width: 20 },
-                { header: "Repair Process", key: "Repair Process", width: 40 },
-                { header: "Assigned To", key: "Assigned To", width: 20 },
-                { header: "Final Result", key: "Final Result", width: 20 },
-                { header: "Comments", key: "Comments", width: 40 },
-            ];
-            worksheet.columns = columns;
-
-            // Add Data
-            data.forEach((report) => {
-                const row = { ...report };
-                const dateVal = row["Date"] || row["reportedDate"];
-                if (dateVal) {
-                    const parsed = new Date(dateVal);
-                    if (!isNaN(parsed.getTime())) {
-                        row["Date"] = parsed;
-                    }
-                }
-                worksheet.addRow(row);
+        try {
+            setIsExporting(true);
+            
+            // Call the secure Next.js API Route we built that uses xlsx-populate 
+            // to perfectly preserve all Native Excel charts!
+            const response = await fetch("/api/export", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ reports, startDate, endDate }),
             });
 
-            // Stylize Header
-            const headerRow = worksheet.getRow(1);
-            headerRow.height = 30;
-            headerRow.eachCell((cell) => {
-                cell.fill = {
-                    type: "pattern",
-                    pattern: "solid",
-                    fgColor: { argb: "FF0F5132" } // Deep Green
-                };
-                cell.font = {
-                    name: "Arial",
-                    color: { argb: "FFFFFFFF" },
-                    bold: true,
-                    size: 11
-                };
-                cell.alignment = {
-                    vertical: "middle",
-                    horizontal: "center"
-                };
-                cell.border = {
-                    top: { style: "thin", color: { argb: "FF9CA3AF" } },
-                    left: { style: "thin", color: { argb: "FF9CA3AF" } },
-                    bottom: { style: "thin", color: { argb: "FF9CA3AF" } },
-                    right: { style: "thin", color: { argb: "FF9CA3AF" } }
-                };
-            });
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || "Failed to generate Excel file");
+            }
 
-            // Stylize Data Rows
-            worksheet.eachRow((row, rowNumber) => {
-                if (rowNumber === 1) return;
-                if (rowNumber % 2 === 0) {
-                    row.eachCell((cell) => {
-                        cell.fill = {
-                            type: "pattern",
-                            pattern: "solid",
-                            fgColor: { argb: "FFF9FAFB" }
-                        };
-                    });
-                }
-                row.eachCell((cell) => {
-                    cell.border = {
-                        top: { style: "thin", color: { argb: "FFE5E7EB" } },
-                        left: { style: "thin", color: { argb: "FFE5E7EB" } },
-                        bottom: { style: "thin", color: { argb: "FFE5E7EB" } },
-                        right: { style: "thin", color: { argb: "FFE5E7EB" } }
-                    };
-                    cell.alignment = {
-                        vertical: "middle",
-                        horizontal: "left",
-                        wrapText: true
-                    };
-                    cell.font = {
-                        name: "Arial",
-                        size: 10,
-                        color: { argb: "FF1F2937" }
-                    };
-                });
-            });
-        };
+            // Get the generated Excel buffer and save it out completely intact
+            const blob = await response.blob();
+            saveAs(blob, `AFC_Analytics_${startDate}_to_${endDate}.xlsx`);
 
-        // Filter data for each sheet
-        const atimReports = reports.filter(r => r.Device && r.Device.toUpperCase().includes("ATIM"));
-        const gateReports = reports.filter(r => r.Device && r.Device.toUpperCase().includes("GATE"));
-
-        // Create sheets
-        createSheet("ATIM", atimReports);
-        createSheet("GATE", gateReports);
-
-        // Generate File
-        const buffer = await workbook.xlsx.writeBuffer();
-        const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-        saveAs(blob, `AFC_Reports_${startDate}_to_${endDate}.xlsx`);
+        } catch (error) {
+            console.error(error);
+            alert("Σφάλμα κατά την εξαγωγή: " + (error as Error).message);
+        } finally {
+            setIsExporting(false);
+        }
     };
 
     return (
         <button
             onClick={handleExport}
+            disabled={isExporting}
             className="export-btn"
             style={{
                 background: "rgba(16, 185, 129, 0.1)", // Glassy Green
@@ -142,26 +61,31 @@ export default function ExportButton({ reports, startDate, endDate }: ExportButt
                 border: "1px solid rgba(16, 185, 129, 0.3)",
                 padding: "0.6rem 1.2rem",
                 borderRadius: "8px",
-                cursor: "pointer",
+                cursor: isExporting ? "not-allowed" : "pointer",
                 fontSize: "0.9rem",
                 fontWeight: "600",
                 display: "flex",
                 alignItems: "center",
                 gap: "0.5rem",
                 transition: "all 0.3s ease",
-                backdropFilter: "blur(4px)"
+                backdropFilter: "blur(4px)",
+                opacity: isExporting ? 0.7 : 1
             }}
             onMouseOver={(e) => {
-                e.currentTarget.style.background = "rgba(16, 185, 129, 0.2)";
-                e.currentTarget.style.boxShadow = "0 0 15px rgba(16, 185, 129, 0.3)";
+                if(!isExporting) {
+                    e.currentTarget.style.background = "rgba(16, 185, 129, 0.2)";
+                    e.currentTarget.style.boxShadow = "0 0 15px rgba(16, 185, 129, 0.3)";
+                }
             }}
             onMouseOut={(e) => {
-                e.currentTarget.style.background = "rgba(16, 185, 129, 0.1)";
-                e.currentTarget.style.boxShadow = "none";
+                if(!isExporting) {
+                    e.currentTarget.style.background = "rgba(16, 185, 129, 0.1)";
+                    e.currentTarget.style.boxShadow = "none";
+                }
             }}
         >
-            <Download size={18} />
-            Export
+            {isExporting ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
+            {isExporting ? "Exporting..." : "Export"}
         </button>
     );
 }
