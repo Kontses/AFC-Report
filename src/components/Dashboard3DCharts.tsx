@@ -140,6 +140,8 @@ export default function Dashboard3DCharts({ data }: Dashboard3DChartsProps) {
             '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'
         ];
 
+        const total = data.reduce((sum, item) => sum + item.value, 0);
+
         return {
             tooltip: {
                 trigger: 'item',
@@ -153,16 +155,48 @@ export default function Dashboard3DCharts({ data }: Dashboard3DChartsProps) {
                     color: isDark ? '#fff' : '#1e293b'
                 }
             },
+            legend: {
+                type: 'scroll',
+                orient: 'vertical',
+                left: '48%', // Ensure the legend starts to the right of the pie chart
+                right: '2%',
+                top: 'middle',
+                itemGap: 14,
+                icon: 'circle',
+                itemWidth: 10,
+                tooltip: { show: true }, // Shows full name on hover if truncated
+                pageIconColor: isDark ? '#fff' : '#1e293b',
+                pageTextStyle: { color: isDark ? '#fff' : '#1e293b' },
+                textStyle: {
+                    color: subTextColor,
+                    rich: {
+                        idx: { width: 22, fontSize: 13, color: subTextColor, fontWeight: 'bold' },
+                        name: { width: 130, fontSize: 13, color: textColor },
+                        value: { width: 35, fontSize: 13, fontWeight: 'bold', align: 'right', color: textColor },
+                        percent: { width: 45, fontSize: 12, align: 'right', color: subTextColor }
+                    }
+                },
+                formatter: (name: string) => {
+                    const item = data.find(d => d.name === name);
+                    const idx = data.findIndex(d => d.name === name) + 1;
+                    if (!item) return name;
+                    const percent = total > 0 ? ((item.value / total) * 100).toFixed(1) + '%' : '0%';
+                    // Truncate long names to strictly prevent overlap
+                    const maxLen = 18;
+                    const displayName = name.length > maxLen ? name.substring(0, maxLen).trim() + '...' : name;
+                    return `{idx|${idx}.}{name| ${displayName}}{value|${item.value}}{percent|${percent}}`;
+                }
+            },
             series: [
                 {
                     name: 'Malfunctions',
                     type: 'pie',
-                    radius: ['40%', '70%'],
-                    center: ['50%', '50%'],
+                    radius: ['40%', '60%'], // Slightly smaller radius so it doesn't clip
+                    center: ['25%', '50%'], // Firmly plant pie chart on the left Quarter
                     avoidLabelOverlap: false,
                     itemStyle: {
-                        borderRadius: 10,
-                        borderColor: isDark ? '#0b1120' : '#fff',
+                        borderRadius: 6,
+                        borderColor: isDark ? '#0f172a' : '#fff',
                         borderWidth: 2
                     },
                     label: {
@@ -172,9 +206,10 @@ export default function Dashboard3DCharts({ data }: Dashboard3DChartsProps) {
                     emphasis: {
                         label: {
                             show: true,
-                            fontSize: 20,
+                            fontSize: 14,
                             fontWeight: 'bold',
-                            color: isDark ? '#fff' : '#1e293b'
+                            color: textColor,
+                            formatter: '{c}\nReports'
                         },
                         itemStyle: {
                             shadowBlur: 10,
@@ -185,9 +220,9 @@ export default function Dashboard3DCharts({ data }: Dashboard3DChartsProps) {
                     labelLine: {
                         show: false
                     },
-                    data: Object.entries(data).map(([name, value], index) => ({
-                        value,
-                        name,
+                    data: data.map((item, index) => ({
+                        value: item.value,
+                        name: item.name,
                         itemStyle: { color: PIE_COLORS[index % PIE_COLORS.length] }
                     }))
                 }
@@ -217,7 +252,7 @@ export default function Dashboard3DCharts({ data }: Dashboard3DChartsProps) {
             </div>
 
             {/* 2. Grid for Pies */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))', gap: '2rem' }}>
 
                 {/* Gate Pie */}
                 <div className="glass-panel"
@@ -232,7 +267,7 @@ export default function Dashboard3DCharts({ data }: Dashboard3DChartsProps) {
                         <div style={{ width: '4px', height: '24px', background: '#3b82f6', borderRadius: '2px' }}></div>
                         Gate Malfunctions
                     </h3>
-                    <ReactECharts option={getPieOption(gateData)} style={{ height: '320px' }} />
+                    <ReactECharts option={getPieOption(gateData)} style={{ height: '380px' }} />
                 </div>
 
                 {/* ATIM Pie */}
@@ -248,7 +283,7 @@ export default function Dashboard3DCharts({ data }: Dashboard3DChartsProps) {
                         <div style={{ width: '4px', height: '24px', background: '#10b981', borderRadius: '2px' }}></div>
                         ATIM Malfunctions
                     </h3>
-                    <ReactECharts option={getPieOption(atimData)} style={{ height: '320px' }} />
+                    <ReactECharts option={getPieOption(atimData)} style={{ height: '380px' }} />
                 </div>
 
             </div>
