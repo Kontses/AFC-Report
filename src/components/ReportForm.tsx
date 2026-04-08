@@ -115,6 +115,13 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
       status: "Solved",
       finalResult: ["OK"]
     },
+    "APB 004": {
+      malfunction: "Banknote Acceptance Jam",
+      repairProcess: "Removing the jammed banknotes and restart",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
     "RPB 105": {
       malfunction: "Banknote Cashbox: Unauthorized Withdrawal",
       repairProcess: "Needs ΤΗΕΜΑ",
@@ -137,6 +144,13 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
       finalResult: ["OK"]
     },
     // ---------> TICKET-RECEIPT PRINTER ALARMS <---------
+    "AIR 601": {
+      malfunction: "Printer link KO",
+      repairProcess: "Unplag plag cables",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
     "MIC 001": {
       malfunction: "E-Ticket Distribution: KO",
       repairProcess: "Cleaning Printer, delete css.bin, Restart",
@@ -196,6 +210,13 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
       status: "Solved",
       finalResult: ["OK"]
     },
+    "MBB 701": {
+      malfunction: "Shutdown by SSUP",
+      repairProcess: "Unknown",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
     // ---------> GENERAL ALARMS <---------
     "AEQ 024": {
       malfunction: "Put The System Out of Order by SSUP",
@@ -212,7 +233,7 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
       finalResult: ["OK"]
     },
     "AEQ 062": {
-      malfunction: "SSUP Default",
+      malfunction: "UPS Defect",
       repairProcess: "Unplug cable of UPS",
       assignedTo: "TRAXIS ENGINEERING",
       status: "Solved",
@@ -289,6 +310,13 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
       status: "Solved",
       finalResult: ["OK"]
     },
+    "FP01:6013": {
+      malfunction: "Incorrect Signature",
+      repairProcess: "",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
     "PA01:7033": {
       malfunction: "Sensor Default",
       repairProcess: "Check sensors/Check if the glass is dirty",
@@ -320,8 +348,20 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
       status: "Solved",
       finalResult: ["OK"]
     },
+    "Coin Payment: Stuck Coins in the Reserve Box": {
+      repairProcess: "Test Coin parts",
+      assignedTo: "Conduent",
+      status: "Rejected",
+      finalResult: ["Only Accepts Banknotes", "Only Accepts Card"]
+    },
     "Coin are blocked on reserve box roads": {
       repairProcess: "Clean the reserve road",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "Eagle Acceptor Issue": {
+      repairProcess: "Test Coin parts",
       assignedTo: "TRAXIS ENGINEERING",
       status: "Solved",
       finalResult: ["OK"]
@@ -379,6 +419,12 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
       finalResult: ["OK"]
     },
     // ---------> GENERAL ALARMS <---------
+    "POS Irruption": {
+      repairProcess: "Needs Conduent",
+      assignedTo: "Conduent",
+      status: "Rejected",
+      finalResult: ["Only Accepts Coins", "Only Accepts Banknotes"]
+    },
     "Touch screen issue": {
       repairProcess: "Restart",
       assignedTo: "TRAXIS ENGINEERING",
@@ -399,6 +445,24 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
     },
     // ---------> No Alarm <---------
     "After Validation Doors Remain Closed": {
+      repairProcess: "Unplug X1 or Shutdown/Startup",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "Doors remain open": {
+      repairProcess: "Unplug X1 or Shutdown/Startup",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "Out of Order on ATLAS": {
+      repairProcess: "Unplug X1 or Shutdown/Startup",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
+    "Validator Light Is Off": {
       repairProcess: "Unplug X1 or Shutdown/Startup",
       assignedTo: "TRAXIS ENGINEERING",
       status: "Solved",
@@ -883,16 +947,16 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
             {(() => {
               const ATIM_ALARMS = [
                 "ACR 001", "ACR 003", "AEQ 012", "AEQ 024", "AEQ 031", "AEQ 062",
-                "AFA 002", "AIC 601", "AIR 003", "Air 006", "APB 001", "ART 013",
-                "ART 203", "EIC 100", "EIC 102", "EIC 112", "ETP 006", "MBB 002",
-                "MBB 003", "MBB 601", "MIC 001", "MIC 004", "MIC 007", "MIC 007-001",
+                "AFA 002", "AIC 601", "AIR 601", "APB 001", "APB 004", "ART 013",
+                "ART 203", "EIC 100", "EIC 102", "EIC 112", "EIR 003", "ETP 006", "MBB 002",
+                "MBB 003", "MBB 601", "MBB 701", "MIC 001", "MIC 004", "MIC 007", "MIC 007-001",
                 "MIR 004", "MPP 011", "MPP 101", "MPP 102", "MPP 104", "MPP 105",
                 "MPP 214", "MPP 701", "RPB 104", "RPB 105", "RPB 601", "RPB 701"
               ];
 
               const GATE_ALARMS = [
-                "CA01:1111", "CA01:1200", "CA01:1250", "EQ01:4024",
-                "EQ01:4090", "FP01:6001", "FP01:6002", "PA01:7033",
+                "CA01:1111", "CA01:1200", "CA01:1202", "CA01:1250", "EQ01:4024",
+                "EQ01:4090", "FP01:6001", "FP01:6002", "FP01:6013", "PA01:7033",
                 "PA01:7034"
               ];
 
@@ -968,7 +1032,6 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
                 "Banknote Payment: Local/Remote Out Of Order",
                 "Broken Recycler",
                 "Broken Transporter",
-                "CA01:002 Not Initialized",
                 "Coin acceptor is not functional",
                 "Coin are blocked on reserve box roads",
                 "Coin Payment: Coin Acceptor Failure",
@@ -1172,6 +1235,7 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
               {formData.device === "GATE" && <option value="Dump files collected">Dump files collected</option>}
               {formData.device === "ATIM" && <option value="Log files sent to Mellon">Log files sent to Mellon</option>}
               {formData.device === "ATIM" && <option value="Repaired by TRAXIS">Repaired by TRAXIS</option>}
+              {<option value="Need spare parts">Need spare parts</option>}
             </select>
           </div>
           <textarea id="comments" name="comments" value={formData.comments} onChange={handleChange} rows={3} />
