@@ -40,7 +40,20 @@ export default function ExportButton({ reports, startDate, endDate }: ExportButt
 
             // Get the generated Excel buffer and save it out completely intact
             const blob = await response.blob();
-            saveAs(blob, `AFC_Analytics_${startDate}_to_${endDate}.xlsx`);
+            
+            const formatFilenameDate = (dateStr: string) => {
+                const d = new Date(dateStr);
+                if (isNaN(d.getTime())) return dateStr;
+                const day = String(d.getDate()).padStart(2, '0');
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const year = d.getFullYear();
+                return `${day}-${month}-${year}`;
+            };
+
+            const fileStartDate = formatFilenameDate(startDate);
+            const fileEndDate = formatFilenameDate(endDate);
+
+            saveAs(blob, `AFC_Analytics_${fileStartDate}_to_${fileEndDate}.xlsx`);
 
         } catch (error) {
             console.error(error);

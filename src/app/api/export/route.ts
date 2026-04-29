@@ -27,7 +27,20 @@ export async function POST(request: Request) {
         const formatDate = (dateString: string) => {
             if (!dateString) return "";
             const d = new Date(dateString);
-            return isNaN(d.getTime()) ? dateString : d.toLocaleDateString() + " " + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            if (isNaN(d.getTime())) return dateString;
+            
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            const hours = d.getHours();
+            const minutes = String(d.getMinutes()).padStart(2, '0');
+            
+            // Format time with Greek AM/PM
+            const ampm = hours >= 12 ? 'μ.μ.' : 'π.μ.';
+            const displayHours = hours % 12 || 12;
+            const hourStr = String(displayHours).padStart(2, '0');
+
+            return `${day}/${month}/${year} ${hourStr}:${minutes} ${ampm}`;
         };
 
         // Helper to populate raw list sheets
@@ -164,11 +177,23 @@ export async function POST(request: Request) {
         const outputBuffer = await workbook.outputAsync();
 
         // 6. Return the blob correctly for downloading
+        const formatFilenameDate = (dateStr: string) => {
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr;
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            return `${day}-${month}-${year}`;
+        };
+
+        const fileStartDate = formatFilenameDate(startDate);
+        const fileEndDate = formatFilenameDate(endDate);
+
         return new NextResponse(outputBuffer, {
             status: 200,
             headers: {
                 'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'Content-Disposition': `attachment; filename="AFC_Analytics_${startDate}_to_${endDate}.xlsx"`,
+                'Content-Disposition': `attachment; filename="AFC_Analytics_${fileStartDate}_to_${fileEndDate}.xlsx"`,
             },
         });
 
