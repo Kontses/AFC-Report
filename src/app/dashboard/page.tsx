@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Dashboard3DCharts from "../../components/Dashboard3DCharts";
 import ExportButton from "../../components/ExportButton";
 import Link from "next/link";
@@ -19,9 +19,6 @@ export default function Dashboard() {
     // Default: Current Month
     const [startDate, setStartDate] = useState(format(startOfMonth(new Date()), "yyyy-MM-dd"));
     const [endDate, setEndDate] = useState(format(new Date(), "yyyy-MM-dd"));
-
-    const startInputRef = useRef<HTMLInputElement>(null);
-    const endInputRef = useRef<HTMLInputElement>(null);
 
     const { theme } = useTheme();
     const isDark = theme === "dark";
@@ -148,12 +145,13 @@ export default function Dashboard() {
                     <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
                         <div className="date-input-group" style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
                             <label style={{ fontSize: '0.75rem', color: subTextColor, textTransform: 'uppercase', letterSpacing: '1px' }}>Start Date</label>
-                            <div style={{ position: 'relative', cursor: 'pointer' }} onClick={() => startInputRef.current?.showPicker()}>
-                                <Calendar size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: subTextColor, zIndex: 1 }} />
+                            <div style={{ position: 'relative' }}>
+                                <Calendar size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: subTextColor }} />
                                 <input
-                                    type="text"
-                                    readOnly
-                                    value={format(parseISO(startDate), "dd/MM/yyyy")}
+                                    type="date"
+                                    lang="el-GR"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
                                     style={{
                                         background: inputBg,
                                         border: `1px solid ${inputBorder}`,
@@ -162,23 +160,7 @@ export default function Dashboard() {
                                         borderRadius: '8px',
                                         outline: 'none',
                                         fontSize: '0.9rem',
-                                        width: '130px',
-                                        cursor: 'pointer'
-                                    }}
-                                />
-                                <input
-                                    type="date"
-                                    ref={startInputRef}
-                                    value={startDate}
-                                    onChange={(e) => setStartDate(e.target.value)}
-                                    style={{
-                                        position: 'absolute',
-                                        opacity: 0,
-                                        width: 0,
-                                        height: 0,
-                                        padding: 0,
-                                        border: 0,
-                                        pointerEvents: 'none'
+                                        colorScheme: isDark ? 'dark' : 'light'
                                     }}
                                 />
                             </div>
@@ -186,12 +168,13 @@ export default function Dashboard() {
 
                         <div className="date-input-group" style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
                             <label style={{ fontSize: '0.75rem', color: subTextColor, textTransform: 'uppercase', letterSpacing: '1px' }}>End Date</label>
-                            <div style={{ position: 'relative', cursor: 'pointer' }} onClick={() => endInputRef.current?.showPicker()}>
-                                <Calendar size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: subTextColor, zIndex: 1 }} />
+                            <div style={{ position: 'relative' }}>
+                                <Calendar size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: subTextColor }} />
                                 <input
-                                    type="text"
-                                    readOnly
-                                    value={format(parseISO(endDate), "dd/MM/yyyy")}
+                                    type="date"
+                                    lang="el-GR"
+                                    value={endDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
                                     style={{
                                         background: inputBg,
                                         border: `1px solid ${inputBorder}`,
@@ -200,23 +183,7 @@ export default function Dashboard() {
                                         borderRadius: '8px',
                                         outline: 'none',
                                         fontSize: '0.9rem',
-                                        width: '130px',
-                                        cursor: 'pointer'
-                                    }}
-                                />
-                                <input
-                                    type="date"
-                                    ref={endInputRef}
-                                    value={endDate}
-                                    onChange={(e) => setEndDate(e.target.value)}
-                                    style={{
-                                        position: 'absolute',
-                                        opacity: 0,
-                                        width: 0,
-                                        height: 0,
-                                        padding: 0,
-                                        border: 0,
-                                        pointerEvents: 'none'
+                                        colorScheme: isDark ? 'dark' : 'light'
                                     }}
                                 />
                             </div>
