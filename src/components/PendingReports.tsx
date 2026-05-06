@@ -117,7 +117,7 @@ export default function PendingReports() {
     };
 
     if (reports.length === 0) {
-        return <div style={{ padding: '1rem', textAlign: 'center', color: '#64748b', fontSize: '0.9rem' }}>All rights reserved © 2025 TRAXIS ENGINEERING.</div>;
+        return <div style={{ padding: '1rem', textAlign: 'center', color: '#64748b', fontSize: '0.9rem' }}>All rights reserved © 2026 TRAXIS ENGINEERING.</div>;
     }
 
     const formatDisplayDate = (dateStr: string) => {

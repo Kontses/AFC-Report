@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Dashboard3DCharts from "../../components/Dashboard3DCharts";
+import ReportsTable from "../../components/ReportsTable";
 import MultiSelect from "../../components/MultiSelect";
 import ExportButton from "../../components/ExportButton";
 import Link from "next/link";
 import { format, startOfMonth, parseISO, isWithinInterval, endOfDay, startOfDay } from "date-fns";
-import { ArrowLeft, Calendar } from "lucide-react";
+import { ArrowLeft, Calendar, BarChart3, TableProperties } from "lucide-react";
 import ThemeToggle from "../../components/ThemeToggle";
 import { useTheme } from "../../components/ThemeProvider";
 
@@ -16,6 +17,7 @@ export default function Dashboard() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [filteredReports, setFilteredReports] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [activeView, setActiveView] = useState<"charts" | "table">("charts");
 
     // Default: Current Month
     const [startDate, setStartDate] = useState(format(startOfMonth(new Date()), "yyyy-MM-dd"));
@@ -303,14 +305,59 @@ export default function Dashboard() {
 
                 </div>
 
+                {/* Tabs */}
+                <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
+                    <button
+                        onClick={() => setActiveView("charts")}
+                        style={{
+                            display: "flex", alignItems: "center", gap: "0.5rem",
+                            padding: "0.6rem 1.2rem",
+                            borderRadius: "8px",
+                            background: activeView === "charts" ? "rgba(59, 130, 246, 0.15)" : glassBg,
+                            color: activeView === "charts" ? "#3b82f6" : subTextColor,
+                            border: `1px solid ${activeView === "charts" ? "rgba(59, 130, 246, 0.3)" : glassBorder}`,
+                            cursor: "pointer",
+                            fontWeight: activeView === "charts" ? "600" : "500",
+                            transition: "all 0.2s"
+                        }}
+                    >
+                        <BarChart3 size={18} /> Γραφήματα
+                    </button>
+                    <button
+                        onClick={() => setActiveView("table")}
+                        style={{
+                            display: "flex", alignItems: "center", gap: "0.5rem",
+                            padding: "0.6rem 1.2rem",
+                            borderRadius: "8px",
+                            background: activeView === "table" ? "rgba(59, 130, 246, 0.15)" : glassBg,
+                            color: activeView === "table" ? "#3b82f6" : subTextColor,
+                            border: `1px solid ${activeView === "table" ? "rgba(59, 130, 246, 0.3)" : glassBorder}`,
+                            cursor: "pointer",
+                            fontWeight: activeView === "table" ? "600" : "500",
+                            transition: "all 0.2s"
+                        }}
+                    >
+                        <TableProperties size={18} /> Δεδομένα
+                    </button>
+                </div>
+
                 {loading ? (
                     <div style={{ height: '400px', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#64748b' }}>
                         <div className="loader">Loading Analytics...</div>
                     </div>
                 ) : (
-                    <Dashboard3DCharts data={filteredReports} />
+                    activeView === "charts" ? (
+                        <Dashboard3DCharts data={filteredReports} />
+                    ) : (
+                        <ReportsTable data={filteredReports} />
+                    )
                 )}
 
+            </div>
+
+            {/* Footer */}
+            <div style={{ textAlign: "center", padding: "2rem 0 1rem", color: subTextColor, fontSize: "0.85rem" }}>
+                All rights reserved © 2026 TRAXIS ENGINEERING.
             </div>
 
         </div>
