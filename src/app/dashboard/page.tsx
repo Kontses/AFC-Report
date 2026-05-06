@@ -181,7 +181,7 @@ export default function Dashboard() {
                         </div>
                         <ExportButton reports={filteredReports} startDate={startDate} endDate={endDate} />
                     </div>
-                    
+
                     <div style={{ width: '1px', height: '24px', background: glassBorder }}></div>
 
                     <ThemeToggle />
@@ -281,7 +281,7 @@ export default function Dashboard() {
 
                     {/* Clear Filters Button - Moved outside the filter group to align right */}
                     <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                        <button 
+                        <button
                             onClick={handleClearFilters}
                             style={{
                                 background: "rgba(230, 57, 70, 0.1)",
@@ -357,7 +357,7 @@ export default function Dashboard() {
 
             {/* Footer */}
             <div style={{ textAlign: "center", padding: "2rem 0 1rem", color: subTextColor, fontSize: "0.85rem" }}>
-                All rights reserved © 2026 TRAXIS ENGINEERING.
+                All rights reserved © 2026 TRAXIS ENGINEERING
             </div>
 
         </div>
