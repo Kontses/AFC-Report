@@ -840,10 +840,10 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
             style={isEditMode ? { background: "#f1f5f9", cursor: "not-allowed", opacity: 0.8 } : {}}
           >
             <option value="Emmanouil Kazantzoglou">Emmanouil Kazantzoglou</option>
-            <option value="Konstantinos Saltzoglou">Konstantinos Saltzoglou</option>
+            <option value="Evangelos Derventzis">Evangelos Derventzis</option>
             <option value="Dimitris Mpazakas">Dimitris Mpazakas</option>
+            <option value="Konstantinos Saltzoglou">Konstantinos Saltzoglou</option>
             <option value="Nikos Tsiagkas">Nikos Tsiagkas</option>
-            <option value="Kostantinos Andreadis">Kostantinos Andreadis</option>
             <option value="Vassilis Kontses">Vassilis Kontses</option>
           </select>
         </div>
