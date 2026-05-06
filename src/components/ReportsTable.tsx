@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useState, useMemo } from "react";
+import { ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
 
 interface ReportsTableProps {
     data: any[];
@@ -25,6 +26,71 @@ export default function ReportsTable({ data }: ReportsTableProps) {
 
         return `${day}/${month}/${year} ${hourStr}:${minutes} ${ampm}`;
     };
+
+    const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>(null);
+
+    const sortedData = useMemo(() => {
+        if (!sortConfig) return data;
+        
+        return [...data].sort((a, b) => {
+            let valA = a[sortConfig.key];
+            let valB = b[sortConfig.key];
+            
+            // Handle null/undefined
+            if (valA === undefined || valA === null) valA = "";
+            if (valB === undefined || valB === null) valB = "";
+            
+            // Special handling for dates
+            if (sortConfig.key === "Date") {
+                valA = new Date(a["Date"] || a["reportedDate"] || 0).getTime();
+                valB = new Date(b["Date"] || b["reportedDate"] || 0).getTime();
+            }
+
+            if (valA < valB) {
+                return sortConfig.direction === 'asc' ? -1 : 1;
+            }
+            if (valA > valB) {
+                return sortConfig.direction === 'asc' ? 1 : -1;
+            }
+            
+            // Fallback for alphanumeric string comparison (e.g., Station "1(NRS)" vs "10(ANP)")
+            if (typeof valA === 'string' && typeof valB === 'string') {
+                const cmp = valA.localeCompare(valB, undefined, { numeric: true });
+                return sortConfig.direction === 'asc' ? cmp : -cmp;
+            }
+
+            return 0;
+        });
+    }, [data, sortConfig]);
+
+    const requestSort = (key: string) => {
+        let direction: 'asc' | 'desc' = 'asc';
+        if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+    };
+
+    const renderSortIcon = (columnKey: string) => {
+        if (!sortConfig || sortConfig.key !== columnKey) {
+            return <ChevronsUpDown size={14} style={{ opacity: 0.3, marginLeft: '4px' }} />;
+        }
+        return sortConfig.direction === 'asc' 
+            ? <ChevronUp size={14} style={{ color: '#3b82f6', marginLeft: '4px' }} />
+            : <ChevronDown size={14} style={{ color: '#3b82f6', marginLeft: '4px' }} />;
+    };
+
+    const Th = ({ label, columnKey }: { label: string, columnKey: string }) => (
+        <th 
+            style={{ padding: "12px 8px", cursor: "pointer", userSelect: "none" }}
+            onClick={() => requestSort(columnKey)}
+        >
+            <div style={{ display: "flex", alignItems: "center", gap: "2px" }}>
+                {label}
+                {renderSortIcon(columnKey)}
+            </div>
+        </th>
+    );
 
     if (!data || data.length === 0) {
         return (
@@ -67,23 +133,23 @@ export default function ReportsTable({ data }: ReportsTableProps) {
                             borderBottom: "1px solid rgba(255,255,255,0.2)",
                             color: "var(--sub-text-color, #94a3b8)"
                         }}>
-                        <th style={{ padding: "12px 8px" }}>Reported By</th>
-                        <th style={{ padding: "12px 8px" }}>Date</th>
-                        <th style={{ padding: "12px 8px" }}>Station</th>
-                        <th style={{ padding: "12px 8px" }}>Device</th>
-                        <th style={{ padding: "12px 8px" }}>Tag</th>
-                        <th style={{ padding: "12px 8px" }}>Status</th>
-                        <th style={{ padding: "12px 8px" }}>Alarm Code</th>
-                        <th style={{ padding: "12px 8px" }}>Malfunction</th>
-                        <th style={{ padding: "12px 8px" }}>Impact</th>
-                        <th style={{ padding: "12px 8px" }}>Repair Process</th>
-                        <th style={{ padding: "12px 8px" }}>Assigned To</th>
-                        <th style={{ padding: "12px 8px" }}>Final Result</th>
-                        <th style={{ padding: "12px 8px" }}>Comments</th>
+                        <Th label="Reported By" columnKey="Reported By" />
+                        <Th label="Date" columnKey="Date" />
+                        <Th label="Station" columnKey="Station" />
+                        <Th label="Device" columnKey="Device" />
+                        <Th label="Tag" columnKey="Tag" />
+                        <Th label="Status" columnKey="Status" />
+                        <Th label="Alarm Code" columnKey="Alarm Code" />
+                        <Th label="Malfunction" columnKey="Malfunction" />
+                        <Th label="Impact" columnKey="Impact" />
+                        <Th label="Repair Process" columnKey="Repair Process" />
+                        <Th label="Assigned To" columnKey="Assigned To" />
+                        <Th label="Final Result" columnKey="Final Result" />
+                        <Th label="Comments" columnKey="Comments" />
                     </tr>
                 </thead>
                 <tbody>
-                    {data.map((row, idx) => (
+                    {sortedData.map((row, idx) => (
                         <tr key={idx} style={{
                             borderBottom: "1px solid rgba(255,255,255,0.05)",
                             transition: "background 0.2s"
