@@ -342,8 +342,13 @@ export default function Dashboard() {
                 </div>
 
                 {loading ? (
-                    <div style={{ height: '400px', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#64748b' }}>
-                        <div className="loader">Loading Analytics...</div>
+                    <div style={{ height: '400px', display: 'flex', flexDirection: 'column', gap: '1.2rem', justifyContent: 'center', alignItems: 'center', color: subTextColor }}>
+                        <div className="loading-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                        <div style={{ fontSize: '1.1rem', fontWeight: 500, letterSpacing: '0.5px' }}>Loading Analytics...</div>
                     </div>
                 ) : (
                     activeView === "charts" ? (
