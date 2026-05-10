@@ -100,8 +100,12 @@ export async function POST(request: Request) {
                     const colLetter = String.fromCharCode(65 + idx); // A, B, C...
                     const cell = sheet.cell(`${colLetter}${rowIdx}`);
                     cell.value(val);
+                    
+                    const isAlternate = rowIdx % 2 === 0;
+                    
                     // Add standard borders and text wrapping
                     cell.style({
+                        fill: isAlternate ? "E2EFDA" : "FFFFFF",
                         leftBorderStyle: "thin",
                         leftBorderColor: "E5E7EB",
                         rightBorderStyle: "thin",
@@ -118,6 +122,10 @@ export async function POST(request: Request) {
                 });
                 rowIdx++;
             });
+            
+            // Apply AutoFilter to the entire populated range
+            const lastRow = rowIdx - 1;
+            sheet.autoFilter(sheet.range(`A1:M${lastRow}`));
         };
 
         populateListSheet(atimSheet, atimReports);
