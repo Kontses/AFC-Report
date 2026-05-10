@@ -23,7 +23,6 @@ export async function POST(request: Request) {
         const atimReports = reports.filter((r: any) => r.Device && r.Device.toUpperCase().includes("ATIM"));
         const gateReports = reports.filter((r: any) => r.Device && r.Device.toUpperCase().includes("GATE"));
 
-        // Helper to format Date
         const formatDate = (dateString: string) => {
             if (!dateString) return "";
             const d = new Date(dateString);
@@ -32,15 +31,10 @@ export async function POST(request: Request) {
             const day = String(d.getDate()).padStart(2, '0');
             const month = String(d.getMonth() + 1).padStart(2, '0');
             const year = d.getFullYear();
-            const hours = d.getHours();
+            const hours = String(d.getHours()).padStart(2, '0');
             const minutes = String(d.getMinutes()).padStart(2, '0');
             
-            // Format time with Greek AM/PM
-            const ampm = hours >= 12 ? 'μ.μ.' : 'π.μ.';
-            const displayHours = hours % 12 || 12;
-            const hourStr = String(displayHours).padStart(2, '0');
-
-            return `${day}/${month}/${year} ${hourStr}:${minutes} ${ampm}`;
+            return `${day}/${month}/${year} ${hours}:${minutes}`;
         };
 
         // Helper to populate raw list sheets
@@ -106,8 +100,12 @@ export async function POST(request: Request) {
                     const colLetter = String.fromCharCode(65 + idx); // A, B, C...
                     const cell = sheet.cell(`${colLetter}${rowIdx}`);
                     cell.value(val);
+                    
+                    const isAlternate = rowIdx % 2 === 0;
+                    
                     // Add standard borders and text wrapping
                     cell.style({
+                        fill: isAlternate ? "E2EFDA" : "FFFFFF",
                         leftBorderStyle: "thin",
                         leftBorderColor: "E5E7EB",
                         rightBorderStyle: "thin",
@@ -124,6 +122,10 @@ export async function POST(request: Request) {
                 });
                 rowIdx++;
             });
+            
+            // Apply AutoFilter to the entire populated range
+            const lastRow = rowIdx - 1;
+            sheet.autoFilter(sheet.range(`A1:M${lastRow}`));
         };
 
         populateListSheet(atimSheet, atimReports);
