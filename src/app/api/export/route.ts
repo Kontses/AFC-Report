@@ -23,7 +23,6 @@ export async function POST(request: Request) {
         const atimReports = reports.filter((r: any) => r.Device && r.Device.toUpperCase().includes("ATIM"));
         const gateReports = reports.filter((r: any) => r.Device && r.Device.toUpperCase().includes("GATE"));
 
-        // Helper to format Date
         const formatDate = (dateString: string) => {
             if (!dateString) return "";
             const d = new Date(dateString);
@@ -32,15 +31,10 @@ export async function POST(request: Request) {
             const day = String(d.getDate()).padStart(2, '0');
             const month = String(d.getMonth() + 1).padStart(2, '0');
             const year = d.getFullYear();
-            const hours = d.getHours();
+            const hours = String(d.getHours()).padStart(2, '0');
             const minutes = String(d.getMinutes()).padStart(2, '0');
             
-            // Format time with Greek AM/PM
-            const ampm = hours >= 12 ? 'μ.μ.' : 'π.μ.';
-            const displayHours = hours % 12 || 12;
-            const hourStr = String(displayHours).padStart(2, '0');
-
-            return `${day}/${month}/${year} ${hourStr}:${minutes} ${ampm}`;
+            return `${day}/${month}/${year} ${hours}:${minutes}`;
         };
 
         // Helper to populate raw list sheets
