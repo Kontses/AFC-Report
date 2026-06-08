@@ -48,7 +48,7 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
     if (!isOpen) return null;
 
     const dates = Object.keys(shiftsData).sort();
-    
+
     // Get unique employees for the filter dropdown
     const allEmployees = new Set<string>();
     dates.forEach(date => {
@@ -60,45 +60,53 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
 
     return (
         <div style={{
-            background: "var(--card-bg)",
-            border: "1px solid var(--border)",
-            borderRadius: "16px",
-            boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.4)",
-            width: "100%",
-            maxWidth: "600px",
-            margin: "0 auto 2rem auto",
-            display: "flex",
-            flexDirection: "column",
-            overflow: "hidden"
+            position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+            background: "rgba(0,0,0,0.6)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            zIndex: 1000, backdropFilter: "blur(5px)",
+            padding: "1rem" // added padding to prevent touching edges on mobile
         }}>
+            <div style={{
+                background: "var(--card-bg)",
+                border: "1px solid var(--border)",
+                borderRadius: "16px",
+                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+                width: "100%",
+                maxWidth: "800px",
+                maxHeight: "90vh",
+                display: "flex",
+                flexDirection: "column",
+                overflow: "hidden"
+            }}>
                 {/* Header */}
                 <div style={{
-                    padding: "1.5rem", borderBottom: "1px solid var(--border)",
-                    display: "flex", justifyContent: "space-between", alignItems: "center",
+                    padding: "1.25rem 1.5rem", borderBottom: "1px solid var(--border)",
+                    display: "flex", flexDirection: "column", gap: "1rem",
                     backgroundColor: "var(--input-bg)"
                 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                        <CalendarIcon size={24} color="#3b82f6" />
-                        <h2 style={{ fontSize: "1.25rem", fontWeight: "bold", margin: 0 }}>Ημερολόγιο Βαρδιών</h2>
-                    </div>
-                    
-                    <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "var(--card-bg)", padding: "4px 12px", borderRadius: "8px", border: "1px solid var(--border)" }}>
-                            <User size={16} color="var(--secondary)" />
-                            <select 
-                                value={filterEmployee}
-                                onChange={(e) => setFilterEmployee(e.target.value)}
-                                style={{ background: "transparent", border: "none", color: "var(--foreground)", outline: "none", cursor: "pointer", fontSize: "0.9rem" }}
-                            >
-                                <option value="All">Όλοι οι Μηχανικοί</option>
-                                {Array.from(allEmployees).sort().map(emp => (
-                                    <option key={emp} value={emp}>{emp}</option>
-                                ))}
-                            </select>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                            <CalendarIcon size={24} color="var(--primary)" />
+                            <h2 style={{ fontSize: "1.25rem", fontWeight: "bold", margin: 0 }}>Shifts</h2>
                         </div>
-                        <button onClick={onClose} style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--secondary)", padding: "4px" }}>
-                            <X size={24} />
+                        <button onClick={onClose} style={{ background: "var(--card-bg)", border: "1px solid var(--border)", borderRadius: "8px", cursor: "pointer", color: "var(--foreground)", padding: "8px", display: "flex", alignItems: "center", gap: "6px" }}>
+                            <span style={{ fontSize: "0.85rem", fontWeight: "bold" }}>Κλείσιμο</span>
+                            <X size={18} />
                         </button>
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "var(--card-bg)", padding: "6px 12px", borderRadius: "8px", border: "1px solid var(--border)", width: "fit-content" }}>
+                        <User size={16} color="var(--secondary)" />
+                        <select
+                            value={filterEmployee}
+                            onChange={(e) => setFilterEmployee(e.target.value)}
+                            style={{ background: "transparent", border: "none", color: "var(--foreground)", outline: "none", cursor: "pointer", fontSize: "0.9rem" }}
+                        >
+                            <option value="All">Team</option>
+                            {Array.from(allEmployees).sort().map(emp => (
+                                <option key={emp} value={emp}>{emp}</option>
+                            ))}
+                        </select>
                     </div>
                 </div>
 
@@ -118,7 +126,7 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
                             {dates.map((dateStr) => {
                                 const dayObj = shiftsData[dateStr];
                                 const isCurrentDay = isToday(parseISO(dateStr));
-                                
+
                                 // Check if the filter applies to this day
                                 let dayHasFilteredEmployee = false;
                                 if (filterEmployee !== "All") {
@@ -132,15 +140,15 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
                                 if (!dayHasFilteredEmployee) return null;
 
                                 return (
-                                    <div key={dateStr} style={{ 
-                                        border: `1px solid ${isCurrentDay ? 'var(--primary)' : 'var(--border)'}`, 
-                                        borderRadius: "12px", 
+                                    <div key={dateStr} style={{
+                                        border: `1px solid ${isCurrentDay ? 'var(--primary)' : 'var(--border)'}`,
+                                        borderRadius: "12px",
                                         overflow: "hidden",
                                         boxShadow: isCurrentDay ? "0 0 0 1px var(--primary)" : "none"
                                     }}>
-                                        <div style={{ 
-                                            background: isCurrentDay ? "rgba(230, 57, 70, 0.1)" : "var(--input-bg)", 
-                                            padding: "10px 16px", 
+                                        <div style={{
+                                            background: isCurrentDay ? "rgba(230, 57, 70, 0.1)" : "var(--input-bg)",
+                                            padding: "10px 16px",
                                             fontWeight: "bold",
                                             borderBottom: "1px solid var(--border)",
                                             display: "flex",
@@ -154,7 +162,7 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
                                         <div style={{ padding: "12px 16px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "12px", background: "var(--card-bg)" }}>
                                             {Object.entries(dayObj).map(([category, staffList]: [string, any]) => {
                                                 if (!staffList || staffList.length === 0) return null;
-                                                
+
                                                 // If filtering, only show categories that include the employee, or show all if "All"
                                                 if (filterEmployee !== "All" && !staffList.includes(filterEmployee)) return null;
 
@@ -167,9 +175,9 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
                                                             {staffList.map((emp: string) => {
                                                                 const isHighlight = filterEmployee === emp;
                                                                 const empColor = EMPLOYEE_COLORS[emp] || { bg: "#555", text: "#fff" };
-                                                                
+
                                                                 return (
-                                                                    <div key={emp} style={{ 
+                                                                    <div key={emp} style={{
                                                                         display: "flex", alignItems: "center", gap: "8px",
                                                                         padding: "4px 8px", borderRadius: "6px",
                                                                         background: empColor.bg, color: empColor.text,
@@ -191,6 +199,7 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
                         </div>
                     )}
                 </div>
+            </div>
         </div>
     );
 }
