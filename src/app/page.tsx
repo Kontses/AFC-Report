@@ -85,16 +85,21 @@ export default function Home() {
         </div>
       </header>
       <main className={styles.main}>
-        <ReportForm
-          isHistoryOpen={historyOpen}
-          onHistoryClose={() => setHistoryOpen(false)}
-        />
-        <PendingReports />
+        {calendarOpen ? (
+          <ShiftsCalendarModal 
+            isOpen={calendarOpen} 
+            onClose={() => setCalendarOpen(false)} 
+          />
+        ) : (
+          <>
+            <ReportForm
+              isHistoryOpen={historyOpen}
+              onHistoryClose={() => setHistoryOpen(false)}
+            />
+            <PendingReports />
+          </>
+        )}
       </main>
-      <ShiftsCalendarModal 
-        isOpen={calendarOpen} 
-        onClose={() => setCalendarOpen(false)} 
-      />
     </div>
   );
 }
