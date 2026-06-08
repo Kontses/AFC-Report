@@ -14,7 +14,9 @@ import {
   X,
   ArrowLeft,
   Check,
-  ChevronRight
+  ChevronRight,
+  CloudUpload,
+  CloudDownload
 } from "lucide-react";
 import styles from "./page.module.css";
 
@@ -83,12 +85,63 @@ export default function ShiftsPage() {
   // Drag-to-fill state: tracks the employee being dragged to replicate across cells
   const [draggedEmployee, setDraggedEmployee] = useState<string | null>(null);
   const [isFillDrag, setIsFillDrag] = useState<boolean>(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Initialize client-side dates safely
+  // Initialize client-side dates safely and auto-load from Drive
   useEffect(() => {
     setStartDate(getMondayOfCurrentWeek());
     setEndDate(getSundayOfCurrentWeek());
+    
+    // Auto-load shifts on mount
+    const loadInitial = async () => {
+      try {
+        setIsLoading(true);
+        const res = await fetch('/api/shifts/get');
+        if (res.ok) {
+          const data = await res.json();
+          if (data && Object.keys(data).length > 0) {
+            const dates = Object.keys(data).sort();
+            if (dates.length > 0) {
+              setStartDate(dates[0]);
+              setEndDate(dates[dates.length - 1]);
+            }
+            setShifts(data);
+          }
+        }
+      } catch (err) {
+        console.error("Auto-load failed", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadInitial();
   }, []);
+
+  // Auto-save shifts when they change
+  useEffect(() => {
+    // Skip saving if shifts is empty and we are still loading, to prevent overwriting with empty
+    if (isLoading) return;
+    if (Object.keys(shifts).length === 0) return;
+
+    const timeoutId = setTimeout(async () => {
+      try {
+        setIsSaving(true);
+        const res = await fetch('/api/shifts/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(shifts)
+        });
+        if (!res.ok) console.error('Σφάλμα αυτόματης αποθήκευσης');
+      } catch (err) {
+        console.error("Auto-save failed", err);
+      } finally {
+        setIsSaving(false);
+      }
+    }, 2000); // Debounce auto-save by 2 seconds
+
+    return () => clearTimeout(timeoutId);
+  }, [shifts, isLoading]);
 
   // Generate stacked weeks blocks ensuring complete Mon-Sun chunks
   const getWeeksBlocks = (startStr: string, endStr: string): string[][] => {
@@ -609,6 +662,14 @@ export default function ShiftsPage() {
               <RotateCcw size={18} />
               <span>Reset</span>
             </button>
+            
+            {/* Auto-save status indicator */}
+            {isSaving && (
+              <span style={{ fontSize: "0.8rem", color: "var(--muted-foreground)", display: "flex", alignItems: "center", gap: "4px" }}>
+                <CloudUpload size={14} className="animate-pulse" />
+                Αποθήκευση...
+              </span>
+            )}
           </div>
         </div>
 
