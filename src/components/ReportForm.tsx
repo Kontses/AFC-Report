@@ -451,6 +451,7 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
       finalResult: ["OK"]
     },
     "Doors remain open": {
+      impact: "Unauthorized Entry/Exit",
       repairProcess: "Unplug X1 or Shutdown/Startup",
       assignedTo: "TRAXIS ENGINEERING",
       status: "Solved",

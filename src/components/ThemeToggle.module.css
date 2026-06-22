@@ -1,22 +1,26 @@
 .toggle {
     background: transparent;
-    border: 1px solid var(--border);
+    border: none;
     color: var(--foreground);
-    padding: 0.5rem 1rem;
-    border-radius: 999px;
+    padding: 8px;
+    border-radius: 50%;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    transition: all 0.2s;
+    justify-content: center;
+    transition: background 0.2s, transform 0.1s;
 }
 
 .toggle:hover {
-    background: var(--card-bg);
-    border-color: var(--primary);
+    background: var(--muted);
 }
 
-.label {
-    font-weight: 600;
-    font-size: 0.9rem;
+.toggle:active {
+    transform: scale(0.95);
+}
+
+@media (max-width: 480px) {
+    .toggle {
+        padding: 6px; /* Μικρότερο padding για τα κινητά */
+    }
 }

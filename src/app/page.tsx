@@ -19,64 +19,25 @@ export default function Home() {
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <h1>AFC Report</h1>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div className={styles.headerActions}>
             <button
               onClick={() => setCalendarOpen(true)}
-              title="View Shifts Calendar"
-              style={{
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-                color: "var(--foreground)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "8px",
-                borderRadius: "50%",
-                transition: "background 0.2s"
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = "var(--muted)"}
-              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+              title="Προβολή Ημερολογίου Βαρδιών"
+              className={styles.headerBtn}
             >
               <Calendar size={24} />
             </button>
             <button
               onClick={() => window.open("https://docs.google.com/spreadsheets/d/1jGgQaW4m4ht5N9rVdho9VoeMfwkqVJvIQELNjQoOoj8/edit?usp=sharing", "_blank")}
-              title="View Google Sheet"
-              style={{
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-                color: "var(--foreground)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "8px",
-                borderRadius: "50%",
-                transition: "background 0.2s"
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = "var(--muted)"}
-              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+              title="Προβολή Google Sheet"
+              className={styles.headerBtn}
             >
               <FileSpreadsheet size={24} />
             </button>
             <button
               onClick={() => setHistoryOpen(true)}
-              title="View History"
-              style={{
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-                color: "var(--foreground)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "8px",
-                borderRadius: "50%",
-                transition: "background 0.2s"
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = "var(--muted)"}
-              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+              title="Προβολή Ιστορικού"
+              className={styles.headerBtn}
             >
               <History size={24} />
             </button>
