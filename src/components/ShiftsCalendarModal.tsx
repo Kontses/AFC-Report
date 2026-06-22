@@ -31,17 +31,31 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
     const [highlightedDate, setHighlightedDate] = useState<string | null>(null);
     const [hasScrolledToday, setHasScrolledToday] = useState(false);
     
+    // Καταστάσεις για smooth animations εισόδου/εξόδου (entrance/exit)
+    const [shouldRender, setShouldRender] = useState(isOpen);
+    const [isAnimatingOut, setIsAnimatingOut] = useState(false);
+    
     // Ref για τη σημερινή ημέρα (magnetic snap)
     const todayRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (isOpen) {
+            setShouldRender(true);
+            setIsAnimatingOut(false);
             fetchShifts();
         } else {
+            setIsAnimatingOut(true);
+            const timer = setTimeout(() => {
+                setShouldRender(false);
+                setIsAnimatingOut(false);
+            }, 300); // 300ms για να ολοκληρωθεί το scaleDownModal animation
+            
             // Επαναφορά όταν κλείνει το modal
             setHasScrolledToday(false);
             setScrollToDate(null);
             setHighlightedDate(null);
+            
+            return () => clearTimeout(timer);
         }
     }, [isOpen]);
 
@@ -101,7 +115,7 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
         }
     };
 
-    if (!isOpen) return null;
+    if (!shouldRender) return null;
 
     const dates = Object.keys(shiftsData).sort();
 
@@ -133,7 +147,7 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
 
     return (
         <div 
-            className="modal-backdrop-animate"
+            className={isAnimatingOut ? "modal-backdrop-out" : "modal-backdrop-animate"}
             style={{
                 position: "fixed",
                 top: 0,
@@ -148,7 +162,7 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
             }}
         >
             <div 
-                className="modal-content-animate"
+                className={isAnimatingOut ? "modal-content-out" : "modal-content-animate"}
                 style={{
                     background: "var(--card-bg)",
                     border: "1px solid var(--border)",
