@@ -15,9 +15,21 @@ export default function HistoryModal({ isOpen, onClose, onEdit }: HistoryModalPr
     const [reports, setReports] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
+    const [shouldRender, setShouldRender] = useState(isOpen);
+    const [isAnimatingOut, setIsAnimatingOut] = useState(false);
+
     useEffect(() => {
         if (isOpen) {
+            setShouldRender(true);
+            setIsAnimatingOut(false);
             fetchReports();
+        } else {
+            setIsAnimatingOut(true);
+            const timer = setTimeout(() => {
+                setShouldRender(false);
+                setIsAnimatingOut(false);
+            }, 300); // 300ms για να ολοκληρωθεί το scaleDownModal animation
+            return () => clearTimeout(timer);
         }
     }, [isOpen]);
 
@@ -39,36 +51,40 @@ export default function HistoryModal({ isOpen, onClose, onEdit }: HistoryModalPr
         }
     };
 
-    if (!isOpen) return null;
+    if (!shouldRender) return null;
 
     return (
-        <div style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0, 0, 0, 0.6)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-            backdropFilter: "blur(5px)",
-            padding: "1rem"
-        }}>
-            <div style={{
-                background: "var(--card-bg)",
-                border: "1px solid var(--border)",
-                color: "var(--foreground)",
-                width: "90%",
-                maxWidth: "1000px",
-                maxHeight: "90vh",
-                overflow: "hidden",
-                borderRadius: "16px",
-                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+        <div 
+            className={isAnimatingOut ? "modal-backdrop-out" : "modal-backdrop-animate"}
+            style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
                 display: "flex",
-                flexDirection: "column"
-            }}>
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 1000,
+                padding: "1rem"
+            }}
+        >
+            <div 
+                className={isAnimatingOut ? "modal-content-out" : "modal-content-animate"}
+                style={{
+                    background: "var(--card-bg)",
+                    border: "1px solid var(--border)",
+                    color: "var(--foreground)",
+                    width: "90%",
+                    maxWidth: "1000px",
+                    maxHeight: "90vh",
+                    overflow: "hidden",
+                    borderRadius: "16px",
+                    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+                    display: "flex",
+                    flexDirection: "column"
+                }}
+            >
                 {/* Header / Κεφαλίδα */}
                 <div style={{
                     padding: "1.25rem 1.5rem",
@@ -80,7 +96,7 @@ export default function HistoryModal({ isOpen, onClose, onEdit }: HistoryModalPr
                 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                         <HistoryIcon size={24} color="var(--primary)" />
-                        <h2 style={{ fontSize: "1.25rem", fontWeight: "bold", margin: 0 }}>Recent History</h2>
+                        <h2 style={{ fontSize: "1.25rem", fontWeight: "bold", margin: 0 }}>History</h2>
                     </div>
                     <button
                         onClick={onClose}

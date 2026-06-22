@@ -31,17 +31,31 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
     const [highlightedDate, setHighlightedDate] = useState<string | null>(null);
     const [hasScrolledToday, setHasScrolledToday] = useState(false);
     
+    // Καταστάσεις για smooth animations εισόδου/εξόδου (entrance/exit)
+    const [shouldRender, setShouldRender] = useState(isOpen);
+    const [isAnimatingOut, setIsAnimatingOut] = useState(false);
+    
     // Ref για τη σημερινή ημέρα (magnetic snap)
     const todayRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (isOpen) {
+            setShouldRender(true);
+            setIsAnimatingOut(false);
             fetchShifts();
         } else {
+            setIsAnimatingOut(true);
+            const timer = setTimeout(() => {
+                setShouldRender(false);
+                setIsAnimatingOut(false);
+            }, 300); // 300ms για να ολοκληρωθεί το scaleDownModal animation
+            
             // Επαναφορά όταν κλείνει το modal
             setHasScrolledToday(false);
             setScrollToDate(null);
             setHighlightedDate(null);
+            
+            return () => clearTimeout(timer);
         }
     }, [isOpen]);
 
@@ -101,7 +115,7 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
         }
     };
 
-    if (!isOpen) return null;
+    if (!shouldRender) return null;
 
     const dates = Object.keys(shiftsData).sort();
 
@@ -133,7 +147,7 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
 
     return (
         <div 
-            className="modal-backdrop-animate"
+            className={isAnimatingOut ? "modal-backdrop-out" : "modal-backdrop-animate"}
             style={{
                 position: "fixed",
                 top: 0,
@@ -148,7 +162,7 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
             }}
         >
             <div 
-                className="modal-content-animate"
+                className={isAnimatingOut ? "modal-content-out" : "modal-content-animate"}
                 style={{
                     background: "var(--card-bg)",
                     border: "1px solid var(--border)",
@@ -163,40 +177,63 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
                 }}
             >
                 {/* Header / Κεφαλίδα */}
-                <div style={{
-                    padding: "1.25rem 1.5rem",
-                    borderBottom: "1px solid var(--border)",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "1rem",
-                    backgroundColor: "var(--input-bg)"
-                }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                            <CalendarIcon size={24} color="var(--primary)" />
-                            <h2 style={{ fontSize: "1.25rem", fontWeight: "bold", margin: 0 }}>Shifts</h2>
-                            {viewMode === "month" && (
-                                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginLeft: "12px", background: "var(--card-bg)", borderRadius: "8px", border: "1px solid var(--border)", padding: "2px 6px" }}>
-                                    <button 
-                                        onClick={() => setCurrentMonth(prev => subMonths(prev, 1))}
-                                        style={{ background: "transparent", border: "none", color: "var(--foreground)", cursor: "pointer", padding: "4px", display: "flex", alignItems: "center" }}
-                                        title="Previous Month"
-                                    >
-                                        <ChevronLeft size={16} />
-                                    </button>
-                                    <span style={{ fontSize: "0.9rem", fontWeight: "bold", color: "var(--foreground)", minWidth: "120px", textAlign: "center", textTransform: "capitalize" }}>
-                                        {format(currentMonth, 'MMMM yyyy', { locale: el })}
-                                    </span>
-                                    <button 
-                                        onClick={() => setCurrentMonth(prev => addMonths(prev, 1))}
-                                        style={{ background: "transparent", border: "none", color: "var(--foreground)", cursor: "pointer", padding: "4px", display: "flex", alignItems: "center" }}
-                                        title="Next Month"
-                                    >
-                                        <ChevronRight size={16} />
-                                    </button>
-                                </div>
-                            )}
+                <div 
+                    className="mobile-compact-header"
+                    style={{
+                        padding: "1.25rem 1.5rem",
+                        borderBottom: "1px solid var(--border)",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "1rem",
+                        backgroundColor: "var(--input-bg)"
+                    }}
+                >
+                    {/* Γραμμή 1: Τίτλος, Month Selector (αν Month View), Κλείσιμο */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", gap: "10px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+                            <CalendarIcon size={20} color="var(--primary)" />
+                            <h2 style={{ fontSize: "1.15rem", fontWeight: "bold", margin: 0 }}>Shifts</h2>
                         </div>
+
+                        {viewMode === "month" && (
+                            <div style={{ 
+                                display: "flex", 
+                                alignItems: "center", 
+                                gap: "4px", 
+                                background: "var(--card-bg)", 
+                                borderRadius: "8px", 
+                                border: "1px solid var(--border)", 
+                                padding: "2px 4px",
+                                flexShrink: 0
+                            }}>
+                                <button 
+                                    onClick={() => setCurrentMonth(prev => subMonths(prev, 1))}
+                                    style={{ background: "transparent", border: "none", color: "var(--foreground)", cursor: "pointer", padding: "4px", display: "flex", alignItems: "center" }}
+                                    title="Previous Month"
+                                >
+                                    <ChevronLeft size={16} />
+                                </button>
+                                <span style={{ 
+                                    fontSize: "0.85rem", 
+                                    fontWeight: "bold", 
+                                    color: "var(--foreground)", 
+                                    minWidth: "85px", 
+                                    textAlign: "center", 
+                                    textTransform: "capitalize",
+                                    whiteSpace: "nowrap"
+                                }}>
+                                    {format(currentMonth, 'LLLL yyyy', { locale: el })}
+                                </span>
+                                <button 
+                                    onClick={() => setCurrentMonth(prev => addMonths(prev, 1))}
+                                    style={{ background: "transparent", border: "none", color: "var(--foreground)", cursor: "pointer", padding: "4px", display: "flex", alignItems: "center" }}
+                                    title="Next Month"
+                                >
+                                    <ChevronRight size={16} />
+                                </button>
+                            </div>
+                        )}
+
                         <button
                             onClick={onClose}
                             style={{
@@ -205,11 +242,12 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
                                 borderRadius: "8px",
                                 cursor: "pointer",
                                 color: "var(--foreground)",
-                                padding: "6px 12px",
+                                padding: "6px 10px",
                                 display: "flex",
                                 alignItems: "center",
                                 gap: "6px",
-                                transition: "background 0.2s, border-color 0.2s"
+                                transition: "background 0.2s, border-color 0.2s",
+                                flexShrink: 0
                             }}
                             onMouseEnter={(e) => {
                                 e.currentTarget.style.background = "var(--input-bg)";
@@ -220,32 +258,35 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
                                 e.currentTarget.style.borderColor = "var(--border)";
                             }}
                         >
-                            <span style={{ fontSize: "0.85rem", fontWeight: "bold" }}>Κλείσιμο</span>
-                            <X size={18} />
+                            <span className="mobile-hide-text" style={{ fontSize: "0.85rem", fontWeight: "bold" }}>Κλείσιμο</span>
+                            <X size={16} />
                         </button>
                     </div>
 
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
+                    {/* Γραμμή 2: Dropdown Team & Toggle Buttons List/Month */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px", width: "100%" }}>
                         <div
                             style={{
                                 display: "flex",
                                 alignItems: "center",
-                                gap: "8px",
+                                gap: "6px",
                                 background: "var(--card-bg)",
-                                padding: "6px 12px",
+                                padding: "6px 10px",
                                 borderRadius: "8px",
                                 border: "1px solid var(--border)",
-                                width: "fit-content",
+                                flex: "1",
+                                minWidth: 0,
+                                maxWidth: "180px",
                                 transition: "border-color 0.2s"
                             }}
                             onMouseEnter={(e) => e.currentTarget.style.borderColor = "var(--secondary)"}
                             onMouseLeave={(e) => e.currentTarget.style.borderColor = "var(--border)"}
                         >
-                            <User size={16} color="var(--secondary)" />
+                            <User size={14} color="var(--secondary)" style={{ flexShrink: 0 }} />
                             <select
                                 value={filterEmployee}
                                 onChange={(e) => setFilterEmployee(e.target.value)}
-                                style={{ background: "transparent", border: "none", color: "var(--foreground)", outline: "none", cursor: "pointer", fontSize: "0.9rem" }}
+                                style={{ background: "transparent", border: "none", color: "var(--foreground)", outline: "none", cursor: "pointer", fontSize: "0.85rem", width: "100%" }}
                             >
                                 <option value="All">Team</option>
                                 {Array.from(allEmployees).sort().map(emp => (
@@ -255,17 +296,17 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
                         </div>
 
                         {/* Toggle buttons for view modes */}
-                        <div style={{ display: "flex", background: "var(--card-bg)", border: "1px solid var(--border)", borderRadius: "8px", padding: "2px" }}>
+                        <div style={{ display: "flex", background: "var(--card-bg)", border: "1px solid var(--border)", borderRadius: "8px", padding: "2px", flexShrink: 0 }}>
                             <button
                                 onClick={() => setViewMode("list")}
                                 style={{
                                     background: viewMode === "list" ? "var(--primary)" : "transparent",
                                     color: viewMode === "list" ? "#ffffff" : "var(--secondary)",
                                     border: "none",
-                                    padding: "6px 12px",
+                                    padding: "5px 10px",
                                     borderRadius: "6px",
                                     cursor: "pointer",
-                                    fontSize: "0.85rem",
+                                    fontSize: "0.8rem",
                                     fontWeight: "bold",
                                     transition: "all 0.2s"
                                 }}
@@ -278,10 +319,10 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
                                     background: viewMode === "month" ? "var(--primary)" : "transparent",
                                     color: viewMode === "month" ? "#ffffff" : "var(--secondary)",
                                     border: "none",
-                                    padding: "6px 12px",
+                                    padding: "5px 10px",
                                     borderRadius: "6px",
                                     cursor: "pointer",
-                                    fontSize: "0.85rem",
+                                    fontSize: "0.8rem",
                                     fontWeight: "bold",
                                     transition: "all 0.2s"
                                 }}
@@ -293,7 +334,7 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
                 </div>
 
                 {/* Content */}
-                <div style={{ padding: "1.5rem", maxHeight: "60vh", overflowY: "auto" }}>
+                <div className="mobile-compact-content" style={{ padding: "1.5rem", maxHeight: "60vh", overflowY: "auto" }}>
                     {loading ? (
                         <div style={{ padding: "4rem", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: "1rem" }}>
                             <Loader2 className="animate-spin" size={40} color="var(--primary)" />
