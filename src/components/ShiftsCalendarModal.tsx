@@ -119,7 +119,7 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
                         </div>
                     ) : dates.length === 0 ? (
                         <div style={{ padding: "3rem", textAlign: "center", color: "var(--secondary)" }}>
-                            Δεν υπάρχουν αποθηκευμένες βάρδιες στο Google Drive.
+                            Δεν υπάρχουν καταχωρημένες βάρδιες.
                         </div>
                     ) : (
                         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
