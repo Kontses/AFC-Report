@@ -80,7 +80,7 @@ export default function HistoryModal({ isOpen, onClose, onEdit }: HistoryModalPr
                 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                         <HistoryIcon size={24} color="var(--primary)" />
-                        <h2 style={{ fontSize: "1.25rem", fontWeight: "bold", margin: 0 }}>Recent History</h2>
+                        <h2 style={{ fontSize: "1.25rem", fontWeight: "bold", margin: 0 }}>History</h2>
                     </div>
                     <button
                         onClick={onClose}

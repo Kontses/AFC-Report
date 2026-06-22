@@ -238,3 +238,17 @@ button {
 .click-card-highlight {
   animation: clickPulse 1.2s ease-out 2;
 }
+
+/* Mobile responsive helper classes */
+@media (max-width: 480px) {
+  .mobile-hide-text {
+    display: none !important;
+  }
+  .mobile-compact-header {
+    padding: 1rem 1rem !important;
+    gap: 0.75rem !important;
+  }
+  .mobile-compact-content {
+    padding: 1rem !important;
+  }
+}
