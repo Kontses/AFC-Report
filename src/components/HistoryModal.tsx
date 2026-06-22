@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { X, Edit2, Loader2 } from "lucide-react";
+import { X, Edit2, Loader2, History as HistoryIcon } from "lucide-react";
 
 interface HistoryModalProps {
     isOpen: boolean;
@@ -48,53 +48,79 @@ export default function HistoryModal({ isOpen, onClose, onEdit }: HistoryModalPr
             left: 0,
             right: 0,
             bottom: 0,
-            background: "rgba(0,0,0,0.5)",
+            background: "rgba(0, 0, 0, 0.6)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             zIndex: 1000,
-            backdropFilter: "blur(4px)"
+            backdropFilter: "blur(5px)",
+            padding: "1rem"
         }}>
             <div style={{
-                background: "var(--background, #fff)",
-                color: "var(--foreground, #000)",
+                background: "var(--card-bg)",
+                border: "1px solid var(--border)",
+                color: "var(--foreground)",
                 width: "90%",
                 maxWidth: "1000px",
                 maxHeight: "90vh",
                 overflow: "hidden",
                 borderRadius: "16px",
-                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
                 display: "flex",
                 flexDirection: "column"
             }}>
-                {/* Header */}
+                {/* Header / Κεφαλίδα */}
                 <div style={{
-                    padding: "1.5rem",
-                    borderBottom: "1px solid var(--border, #e5e7eb)",
+                    padding: "1.25rem 1.5rem",
+                    borderBottom: "1px solid var(--border)",
+                    backgroundColor: "var(--input-bg)",
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center"
                 }}>
-                    <h2 style={{ fontSize: "1.25rem", fontWeight: "bold" }}>Recent History</h2>
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                        <HistoryIcon size={24} color="var(--primary)" />
+                        <h2 style={{ fontSize: "1.25rem", fontWeight: "bold", margin: 0 }}>Recent History</h2>
+                    </div>
                     <button
                         onClick={onClose}
-                        style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--muted-foreground, #64748b)" }}
+                        style={{
+                            background: "var(--card-bg)",
+                            border: "1px solid var(--border)",
+                            borderRadius: "8px",
+                            cursor: "pointer",
+                            color: "var(--foreground)",
+                            padding: "6px 12px",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                            transition: "background 0.2s, border-color 0.2s"
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.background = "var(--input-bg)";
+                            e.currentTarget.style.borderColor = "var(--secondary)";
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.background = "var(--card-bg)";
+                            e.currentTarget.style.borderColor = "var(--border)";
+                        }}
                     >
-                        <X size={24} />
+                        <span style={{ fontSize: "0.85rem", fontWeight: "bold" }}>Κλείσιμο</span>
+                        <X size={18} />
                     </button>
                 </div>
 
-                {/* Content */}
-                <div style={{ padding: "0.5rem", overflowY: "auto", flex: 1 }}>
+                {/* Content / Περιεχόμενο */}
+                <div style={{ padding: "1.5rem", overflowY: "auto", flex: 1, backgroundColor: "var(--card-bg)" }}>
                     {loading ? (
                         <div style={{ padding: "3rem", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                            <Loader2 className="animate-spin" size={32} />
+                            <Loader2 className="animate-spin" size={32} color="var(--primary)" />
                         </div>
                     ) : (
                         <div style={{ overflowX: "auto" }}>
                             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}>
                                 <thead>
-                                    <tr style={{ background: "var(--muted, #f1f5f9)", textAlign: "left" }}>
+                                    <tr style={{ background: "var(--input-bg)", textAlign: "left" }}>
                                         <th style={thStyle}>Date</th>
                                         <th style={thStyle}>Station</th>
                                         <th style={thStyle}>Device</th>
@@ -106,7 +132,7 @@ export default function HistoryModal({ isOpen, onClose, onEdit }: HistoryModalPr
                                 </thead>
                                 <tbody>
                                     {reports.map((r, i) => (
-                                        <tr key={i} style={{ borderBottom: "1px solid var(--border, #e5e7eb)" }}>
+                                        <tr key={i} style={{ borderBottom: "1px solid var(--border)" }}>
                                             <td style={tdStyle}>
                                                 {r["Date"] ?
                                                     new Date(r["Date"]).toLocaleString('el-GR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
@@ -122,15 +148,24 @@ export default function HistoryModal({ isOpen, onClose, onEdit }: HistoryModalPr
                                                     onClick={() => onEdit(r)}
                                                     title="Edit this report"
                                                     style={{
-                                                        background: "#f59e0b",
-                                                        color: "white",
-                                                        border: "none",
+                                                        background: "rgba(217, 119, 6, 0.15)",
+                                                        color: "#fbbf24",
+                                                        border: "1px solid rgba(217, 119, 6, 0.3)",
                                                         padding: "6px",
                                                         borderRadius: "6px",
                                                         cursor: "pointer",
-                                                        display: "flex",
+                                                        display: "inline-flex",
                                                         alignItems: "center",
-                                                        gap: "4px"
+                                                        justifyContent: "center",
+                                                        transition: "all 0.2s"
+                                                    }}
+                                                    onMouseEnter={(e) => {
+                                                        e.currentTarget.style.background = "rgba(217, 119, 6, 0.3)";
+                                                        e.currentTarget.style.borderColor = "#fbbf24";
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        e.currentTarget.style.background = "rgba(217, 119, 6, 0.15)";
+                                                        e.currentTarget.style.borderColor = "rgba(217, 119, 6, 0.3)";
                                                     }}
                                                 >
                                                     <Edit2 size={16} />
@@ -148,5 +183,16 @@ export default function HistoryModal({ isOpen, onClose, onEdit }: HistoryModalPr
     );
 }
 
-const thStyle = { padding: "12px", borderBottom: "2px solid var(--border, #e2e8f0)", color: "var(--muted-foreground, #64748b)" };
-const tdStyle = { padding: "12px", whiteSpace: "nowrap" as const };
+const thStyle = {
+    padding: "12px",
+    borderBottom: "2px solid var(--border)",
+    color: "var(--secondary)",
+    fontWeight: "600" as const,
+    fontSize: "0.85rem"
+};
+
+const tdStyle = {
+    padding: "12px",
+    color: "var(--foreground)",
+    whiteSpace: "nowrap" as const
+};

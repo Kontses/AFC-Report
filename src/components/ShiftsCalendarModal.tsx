@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { X, Loader2, Calendar as CalendarIcon, User } from "lucide-react";
-import { format, parseISO, isToday } from "date-fns";
+import React, { useEffect, useState, useRef } from "react";
+import { X, Loader2, Calendar as CalendarIcon, User, ChevronLeft, ChevronRight } from "lucide-react";
+import { format, parseISO, isToday, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, addMonths, subMonths, isSameMonth, isSameDay } from "date-fns";
 import { el } from "date-fns/locale";
 
 interface ShiftsCalendarModalProps {
@@ -23,12 +23,68 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
     const [shiftsData, setShiftsData] = useState<Record<string, any>>({});
     const [loading, setLoading] = useState(true);
     const [filterEmployee, setFilterEmployee] = useState<string>("All");
+    const [viewMode, setViewMode] = useState<"list" | "month">("list");
+    const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
+    
+    // States για πλοήγηση και snap/highlight ημέρας από Month σε List
+    const [scrollToDate, setScrollToDate] = useState<string | null>(null);
+    const [highlightedDate, setHighlightedDate] = useState<string | null>(null);
+    const [hasScrolledToday, setHasScrolledToday] = useState(false);
+    
+    // Ref για τη σημερινή ημέρα (magnetic snap)
+    const todayRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (isOpen) {
             fetchShifts();
+        } else {
+            // Επαναφορά όταν κλείνει το modal
+            setHasScrolledToday(false);
+            setScrollToDate(null);
+            setHighlightedDate(null);
         }
     }, [isOpen]);
+
+    // Εφέ για το αυτόματο μαγνητικό snap/scroll στη σημερινή ημέρα (μόνο μία φορά κατά το άνοιγμα στη list προβολή)
+    useEffect(() => {
+        if (isOpen && !loading && viewMode === "list" && !hasScrolledToday) {
+            const timer = setTimeout(() => {
+                if (todayRef.current) {
+                    todayRef.current.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
+                    setHasScrolledToday(true);
+                }
+            }, 300); // 300ms για να συμπίπτει με το τέλος του scale-up animation του modal
+            return () => clearTimeout(timer);
+        }
+    }, [isOpen, loading, viewMode, hasScrolledToday]);
+
+    // Εφέ για το snap/scroll στην ημέρα που έκανε κλικ ο χρήστης από τη μηνιαία προβολή
+    useEffect(() => {
+        if (viewMode === "list" && scrollToDate) {
+            const timer = setTimeout(() => {
+                const element = document.getElementById(`day-card-${scrollToDate}`);
+                if (element) {
+                    element.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
+                }
+                setScrollToDate(null);
+            }, 150);
+
+            const highlightTimer = setTimeout(() => {
+                setHighlightedDate(null);
+            }, 2500); // Αφαίρεση του highlight μετά από 2.5 δευτερόλεπτα
+
+            return () => {
+                clearTimeout(timer);
+                clearTimeout(highlightTimer);
+            };
+        }
+    }, [viewMode, scrollToDate]);
 
     const fetchShifts = async () => {
         setLoading(true);
@@ -58,55 +114,181 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
         });
     });
 
+    // Helper to generate the 35/42 days grid for monthly view
+    const getMonthGridDays = (monthDate: Date) => {
+        const monthStart = startOfMonth(monthDate);
+        const monthEnd = endOfMonth(monthStart);
+        const gridStart = startOfWeek(monthStart, { weekStartsOn: 1 });
+        const gridEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
+        return eachDayOfInterval({ start: gridStart, end: gridEnd });
+    };
+
+    // Helper to format date object to yyyy-MM-dd key string
+    const formatDateStr = (d: Date): string => {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    };
+
     return (
-        <div style={{
-            position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-            background: "rgba(0,0,0,0.6)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            zIndex: 1000, backdropFilter: "blur(5px)",
-            padding: "1rem" // added padding to prevent touching edges on mobile
-        }}>
-            <div style={{
-                background: "var(--card-bg)",
-                border: "1px solid var(--border)",
-                borderRadius: "16px",
-                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
-                width: "100%",
-                maxWidth: "800px",
-                maxHeight: "90vh",
+        <div 
+            className="modal-backdrop-animate"
+            style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
                 display: "flex",
-                flexDirection: "column",
-                overflow: "hidden"
-            }}>
-                {/* Header */}
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 1000,
+                padding: "1rem"
+            }}
+        >
+            <div 
+                className="modal-content-animate"
+                style={{
+                    background: "var(--card-bg)",
+                    border: "1px solid var(--border)",
+                    borderRadius: "16px",
+                    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+                    width: "90%",
+                    maxWidth: "800px",
+                    maxHeight: "90vh",
+                    display: "flex",
+                    flexDirection: "column",
+                    overflow: "hidden"
+                }}
+            >
+                {/* Header / Κεφαλίδα */}
                 <div style={{
-                    padding: "1.25rem 1.5rem", borderBottom: "1px solid var(--border)",
-                    display: "flex", flexDirection: "column", gap: "1rem",
+                    padding: "1.25rem 1.5rem",
+                    borderBottom: "1px solid var(--border)",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "1rem",
                     backgroundColor: "var(--input-bg)"
                 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                             <CalendarIcon size={24} color="var(--primary)" />
                             <h2 style={{ fontSize: "1.25rem", fontWeight: "bold", margin: 0 }}>Shifts</h2>
+                            {viewMode === "month" && (
+                                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginLeft: "12px", background: "var(--card-bg)", borderRadius: "8px", border: "1px solid var(--border)", padding: "2px 6px" }}>
+                                    <button 
+                                        onClick={() => setCurrentMonth(prev => subMonths(prev, 1))}
+                                        style={{ background: "transparent", border: "none", color: "var(--foreground)", cursor: "pointer", padding: "4px", display: "flex", alignItems: "center" }}
+                                        title="Previous Month"
+                                    >
+                                        <ChevronLeft size={16} />
+                                    </button>
+                                    <span style={{ fontSize: "0.9rem", fontWeight: "bold", color: "var(--foreground)", minWidth: "120px", textAlign: "center", textTransform: "capitalize" }}>
+                                        {format(currentMonth, 'MMMM yyyy', { locale: el })}
+                                    </span>
+                                    <button 
+                                        onClick={() => setCurrentMonth(prev => addMonths(prev, 1))}
+                                        style={{ background: "transparent", border: "none", color: "var(--foreground)", cursor: "pointer", padding: "4px", display: "flex", alignItems: "center" }}
+                                        title="Next Month"
+                                    >
+                                        <ChevronRight size={16} />
+                                    </button>
+                                </div>
+                            )}
                         </div>
-                        <button onClick={onClose} style={{ background: "var(--card-bg)", border: "1px solid var(--border)", borderRadius: "8px", cursor: "pointer", color: "var(--foreground)", padding: "8px", display: "flex", alignItems: "center", gap: "6px" }}>
+                        <button
+                            onClick={onClose}
+                            style={{
+                                background: "var(--card-bg)",
+                                border: "1px solid var(--border)",
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                color: "var(--foreground)",
+                                padding: "6px 12px",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "6px",
+                                transition: "background 0.2s, border-color 0.2s"
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.background = "var(--input-bg)";
+                                e.currentTarget.style.borderColor = "var(--secondary)";
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.background = "var(--card-bg)";
+                                e.currentTarget.style.borderColor = "var(--border)";
+                            }}
+                        >
                             <span style={{ fontSize: "0.85rem", fontWeight: "bold" }}>Κλείσιμο</span>
                             <X size={18} />
                         </button>
                     </div>
 
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "var(--card-bg)", padding: "6px 12px", borderRadius: "8px", border: "1px solid var(--border)", width: "fit-content" }}>
-                        <User size={16} color="var(--secondary)" />
-                        <select
-                            value={filterEmployee}
-                            onChange={(e) => setFilterEmployee(e.target.value)}
-                            style={{ background: "transparent", border: "none", color: "var(--foreground)", outline: "none", cursor: "pointer", fontSize: "0.9rem" }}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
+                        <div
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                                background: "var(--card-bg)",
+                                padding: "6px 12px",
+                                borderRadius: "8px",
+                                border: "1px solid var(--border)",
+                                width: "fit-content",
+                                transition: "border-color 0.2s"
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.borderColor = "var(--secondary)"}
+                            onMouseLeave={(e) => e.currentTarget.style.borderColor = "var(--border)"}
                         >
-                            <option value="All">Team</option>
-                            {Array.from(allEmployees).sort().map(emp => (
-                                <option key={emp} value={emp}>{emp}</option>
-                            ))}
-                        </select>
+                            <User size={16} color="var(--secondary)" />
+                            <select
+                                value={filterEmployee}
+                                onChange={(e) => setFilterEmployee(e.target.value)}
+                                style={{ background: "transparent", border: "none", color: "var(--foreground)", outline: "none", cursor: "pointer", fontSize: "0.9rem" }}
+                            >
+                                <option value="All">Team</option>
+                                {Array.from(allEmployees).sort().map(emp => (
+                                    <option key={emp} value={emp}>{emp}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Toggle buttons for view modes */}
+                        <div style={{ display: "flex", background: "var(--card-bg)", border: "1px solid var(--border)", borderRadius: "8px", padding: "2px" }}>
+                            <button
+                                onClick={() => setViewMode("list")}
+                                style={{
+                                    background: viewMode === "list" ? "var(--primary)" : "transparent",
+                                    color: viewMode === "list" ? "#ffffff" : "var(--secondary)",
+                                    border: "none",
+                                    padding: "6px 12px",
+                                    borderRadius: "6px",
+                                    cursor: "pointer",
+                                    fontSize: "0.85rem",
+                                    fontWeight: "bold",
+                                    transition: "all 0.2s"
+                                }}
+                            >
+                                List
+                            </button>
+                            <button
+                                onClick={() => setViewMode("month")}
+                                style={{
+                                    background: viewMode === "month" ? "var(--primary)" : "transparent",
+                                    color: viewMode === "month" ? "#ffffff" : "var(--secondary)",
+                                    border: "none",
+                                    padding: "6px 12px",
+                                    borderRadius: "6px",
+                                    cursor: "pointer",
+                                    fontSize: "0.85rem",
+                                    fontWeight: "bold",
+                                    transition: "all 0.2s"
+                                }}
+                            >
+                                Month
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -121,7 +303,7 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
                         <div style={{ padding: "3rem", textAlign: "center", color: "var(--secondary)" }}>
                             Δεν υπάρχουν καταχωρημένες βάρδιες.
                         </div>
-                    ) : (
+                    ) : viewMode === "list" ? (
                         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                             {dates.map((dateStr) => {
                                 const dayObj = shiftsData[dateStr];
@@ -139,13 +321,21 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
 
                                 if (!dayHasFilteredEmployee) return null;
 
+                                const isClickHighlight = dateStr === highlightedDate;
                                 return (
-                                    <div key={dateStr} style={{
-                                        border: `1px solid ${isCurrentDay ? 'var(--primary)' : 'var(--border)'}`,
-                                        borderRadius: "12px",
-                                        overflow: "hidden",
-                                        boxShadow: isCurrentDay ? "0 0 0 1px var(--primary)" : "none"
-                                    }}>
+                                    <div 
+                                        key={dateStr} 
+                                        id={`day-card-${dateStr}`}
+                                        ref={isCurrentDay ? todayRef : undefined}
+                                        className={isClickHighlight ? "click-card-highlight" : isCurrentDay ? "today-card-highlight" : ""}
+                                        style={{
+                                            border: `1px solid ${isClickHighlight ? '#fbbf24' : isCurrentDay ? 'var(--primary)' : 'var(--border)'}`,
+                                            borderRadius: "12px",
+                                            overflow: "hidden",
+                                            boxShadow: isClickHighlight ? "0 0 0 1px #fbbf24" : isCurrentDay ? "0 0 0 1px var(--primary)" : "none",
+                                            transition: "border-color 0.3s, box-shadow 0.3s"
+                                        }}
+                                    >
                                         <div style={{
                                             background: isCurrentDay ? "rgba(230, 57, 70, 0.1)" : "var(--input-bg)",
                                             padding: "10px 16px",
@@ -196,6 +386,140 @@ export default function ShiftsCalendarModal({ isOpen, onClose }: ShiftsCalendarM
                                     </div>
                                 );
                             })}
+                        </div>
+                    ) : (
+                        /* Month Calendar view */
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                            {/* Grid weekdays header */}
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "4px", textAlign: "center", borderBottom: "1px solid var(--border)", paddingBottom: "6px" }}>
+                                {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((dayName, idx) => (
+                                    <div key={dayName} style={{ fontSize: "0.8rem", fontWeight: "bold", color: idx >= 5 ? "var(--primary)" : "var(--secondary)" }}>
+                                        {dayName}
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Grid days */}
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "4px" }}>
+                                {getMonthGridDays(currentMonth).map((dayDate) => {
+                                    const dateStr = formatDateStr(dayDate);
+                                    const dayObj = shiftsData[dateStr] || {};
+                                    const isCurrentDay = isToday(dayDate);
+                                    const isCurrentMonth = isSameMonth(dayDate, currentMonth);
+
+                                    return (
+                                        <div 
+                                            key={dateStr}
+                                            onClick={() => {
+                                                setScrollToDate(dateStr);
+                                                setHighlightedDate(dateStr);
+                                                setViewMode("list");
+                                            }}
+                                            style={{
+                                                minHeight: "85px",
+                                                border: `1px solid ${isCurrentDay ? 'var(--primary)' : 'var(--border)'}`,
+                                                borderRadius: "8px",
+                                                padding: "4px",
+                                                background: isCurrentDay 
+                                                    ? "rgba(230, 57, 70, 0.05)" 
+                                                    : isCurrentMonth ? "var(--card-bg)" : "rgba(255, 255, 255, 0.02)",
+                                                opacity: isCurrentMonth ? 1 : 0.4,
+                                                display: "flex",
+                                                flexDirection: "column",
+                                                gap: "4px",
+                                                boxShadow: isCurrentDay ? "0 0 0 1px var(--primary)" : "none",
+                                                overflow: "hidden",
+                                                cursor: "pointer",
+                                                transition: "all 0.2s"
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.currentTarget.style.borderColor = "var(--secondary)";
+                                                e.currentTarget.style.backgroundColor = isCurrentDay 
+                                                    ? "rgba(230, 57, 70, 0.08)" 
+                                                    : "rgba(255, 255, 255, 0.05)";
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.borderColor = isCurrentDay ? 'var(--primary)' : 'var(--border)';
+                                                e.currentTarget.style.backgroundColor = isCurrentDay 
+                                                    ? "rgba(230, 57, 70, 0.05)" 
+                                                    : isCurrentMonth ? "var(--card-bg)" : "rgba(255, 255, 255, 0.02)";
+                                            }}
+                                        >
+                                            {/* Day number header */}
+                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.75rem", fontWeight: "bold" }}>
+                                                <span 
+                                                    style={isCurrentDay ? {
+                                                        background: "var(--primary)",
+                                                        color: "white",
+                                                        width: "18px",
+                                                        height: "18px",
+                                                        borderRadius: "50%",
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        justifyContent: "center",
+                                                        fontSize: "0.7rem"
+                                                    } : {
+                                                        color: isCurrentMonth ? "var(--foreground)" : "var(--secondary)"
+                                                    }}
+                                                >
+                                                    {dayDate.getDate()}
+                                                </span>
+                                                {isCurrentDay && <span style={{ fontSize: "0.6rem", color: "var(--primary)", fontWeight: "bold" }}>Today</span>}
+                                            </div>
+
+                                            {/* Compact Shift Events */}
+                                            <div style={{ display: "flex", flexDirection: "column", gap: "2px", overflowY: "auto", flex: 1 }}>
+                                                {Object.entries(dayObj).map(([category, staffList]: [string, any]) => {
+                                                    if (!staffList || staffList.length === 0) return null;
+
+                                                    // Apply filter if any is selected
+                                                    const filteredStaff = filterEmployee === "All" 
+                                                        ? staffList 
+                                                        : staffList.filter((emp: string) => emp === filterEmployee);
+
+                                                    if (filteredStaff.length === 0) return null;
+
+                                                    return filteredStaff.map((emp: string) => {
+                                                        const empColor = EMPLOYEE_COLORS[emp] || { bg: "#555", text: "#fff" };
+                                                        
+                                                        // Get compact category abbreviation
+                                                        let catLabel = category;
+                                                        if (category === "ΠΡΩΙ") catLabel = "Π";
+                                                        else if (category === "ΑΠΟΓΕΥΜΑ") catLabel = "Α";
+                                                        else if (category === "ΓΡΑΦΕΙΟ") catLabel = "Γρ";
+                                                        else if (category === "ΡΕΠΟ") catLabel = "Ρ";
+                                                        else if (category === "ΑΔΕΙΑ") catLabel = "Αδ";
+
+                                                        return (
+                                                            <div 
+                                                                key={`${category}-${emp}`}
+                                                                style={{
+                                                                    background: empColor.bg,
+                                                                    color: empColor.text,
+                                                                    fontSize: "0.7rem",
+                                                                    padding: "2px 4px",
+                                                                    borderRadius: "4px",
+                                                                    fontWeight: "bold",
+                                                                    whiteSpace: "nowrap",
+                                                                    overflow: "hidden",
+                                                                    textOverflow: "ellipsis",
+                                                                    display: "flex",
+                                                                    gap: "2px",
+                                                                    lineHeight: "1"
+                                                                }}
+                                                                title={`${category} - ${emp}`}
+                                                            >
+                                                                <span style={{ opacity: 0.8 }}>{catLabel}:</span>
+                                                                <span>{emp.split(" ")[0]}</span>
+                                                            </div>
+                                                        );
+                                                    });
+                                                })}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
                     )}
                 </div>
