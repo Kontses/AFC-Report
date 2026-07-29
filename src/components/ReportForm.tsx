@@ -694,14 +694,6 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
     e.preventDefault();
     if (isSubmitting) return;
 
-    if ((formData.malfunction === "Frozen POS" || formData.malfunction === "Screen Freeze" || formData.alarmCode === "Frozen POS" || formData.alarmCode === "Screen Freeze") && !formData.comments.trim()) {
-      alert("Please explain the issue in the comments.");
-      setTimeout(() => {
-        commentInputRef.current?.focus();
-      }, 0);
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
@@ -812,6 +804,8 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
       setIsSubmitting(false);
     }
   };
+
+  const isCommentRequired = formData.malfunction === "Frozen POS" || formData.malfunction === "Screen Freeze" || formData.alarmCode === "Frozen POS" || formData.alarmCode === "Screen Freeze";
 
   return (
     <div style={{ position: "relative" }}>
@@ -1258,7 +1252,7 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
               {<option value="Need spare parts">Need spare parts</option>}
             </select>
           </div>
-          <textarea id="comments" name="comments" value={formData.comments} onChange={handleChange} rows={3} ref={commentInputRef} />
+          <textarea id="comments" name="comments" value={formData.comments} onChange={handleChange} rows={3} ref={commentInputRef} required={isCommentRequired} />
         </div>
 
         <button
