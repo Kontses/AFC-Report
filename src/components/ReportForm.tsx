@@ -1244,11 +1244,11 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
               {formData.device === "GATE" && <option value="Cleaning the SIM card">Cleaning the SIM card</option>}
               {formData.device === "GATE" && <option value="Dump files collected">Dump files collected</option>}
               {formData.device === "ATIM" && <option value="Log files sent to Mellon">Log files sent to Mellon</option>}
-              {formData.device === "ATIM" && <option value="POS terminal froze on the “Transaction approved” message">POS terminal froze on the “Transaction approved” message</option>}
-              {formData.device === "ATIM" && <option value="POS terminal froze on the “Transaction canceled” message">POS terminal froze on the “Transaction canceled” message</option>}
-              {formData.device === "ATIM" && <option value="POS terminal froze on the “Transaction completed” message">POS terminal froze on the “Transaction completed” message</option>}
+              {formData.device === "ATIM" && <option value="POS terminal froze on the “Transaction approved”">POS terminal froze on the “Transaction approved”</option>}
+              {formData.device === "ATIM" && <option value="POS terminal froze on the “Transaction canceled”">POS terminal froze on the “Transaction canceled”</option>}
+              {formData.device === "ATIM" && <option value="POS terminal froze on the “Transaction completed”">POS terminal froze on the “Transaction completed”</option>}
               {formData.device === "ATIM" && <option value="Repaired by TRAXIS">Repaired by TRAXIS</option>}
-              {formData.device === "ATIM" && <option value="Screen froze on the “Don’t forget your card” message">Screen froze on the “Don’t forget your card” message</option>}
+              {formData.device === "ATIM" && <option value="Screen froze on the “Don’t forget your card”">Screen froze on the “Don’t forget your card”</option>}
               {<option value="Need spare parts">Need spare parts</option>}
             </select>
           </div>
