@@ -432,6 +432,12 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
       status: "Solved",
       finalResult: ["OK"]
     },
+    "Screen Freeze": {
+      repairProcess: "Opening ATIM and closing",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
     "Bad Smiley": {
       repairProcess: "Opening ATIM and closing",
       assignedTo: "TRAXIS ENGINEERING",
