@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styles from "./ReportForm.module.css";
 import { saveReportLocal } from "../lib/storage";
 import HistoryModal from "./HistoryModal";
@@ -29,6 +29,7 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
   });
 
   const [autoTime, setAutoTime] = useState(true);
+  const commentInputRef = useRef<HTMLTextAreaElement>(null);
 
   // Edit State
   const [isEditMode, setIsEditMode] = useState(false);
@@ -500,6 +501,12 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
 
+    if ((name === "malfunction" || name === "alarmCode") && (value === "Frozen POS" || value === "Screen Freeze")) {
+      setTimeout(() => {
+        commentInputRef.current?.focus();
+      }, 0);
+    }
+
     setFormData((prev) => {
       // Logic for Tag Restriction: Only allow numbers, commas, and spaces
       if (name === "tag") {
@@ -686,6 +693,14 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
+
+    if ((formData.malfunction === "Frozen POS" || formData.malfunction === "Screen Freeze" || formData.alarmCode === "Frozen POS" || formData.alarmCode === "Screen Freeze") && !formData.comments.trim()) {
+      alert("Please explain the issue in the comments.");
+      setTimeout(() => {
+        commentInputRef.current?.focus();
+      }, 0);
+      return;
+    }
 
     setIsSubmitting(true);
 
@@ -1235,11 +1250,15 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
               {formData.device === "GATE" && <option value="Cleaning the SIM card">Cleaning the SIM card</option>}
               {formData.device === "GATE" && <option value="Dump files collected">Dump files collected</option>}
               {formData.device === "ATIM" && <option value="Log files sent to Mellon">Log files sent to Mellon</option>}
+              {formData.device === "ATIM" && <option value="POS terminal froze on the “Transaction approved”">POS terminal froze on the “Transaction approved”</option>}
+              {formData.device === "ATIM" && <option value="POS terminal froze on the “Transaction canceled”">POS terminal froze on the “Transaction canceled”</option>}
+              {formData.device === "ATIM" && <option value="POS terminal froze on the “Transaction completed”">POS terminal froze on the “Transaction completed”</option>}
               {formData.device === "ATIM" && <option value="Repaired by TRAXIS">Repaired by TRAXIS</option>}
+              {formData.device === "ATIM" && <option value="Screen froze on the “Don’t forget your card”">Screen froze on the “Don’t forget your card”</option>}
               {<option value="Need spare parts">Need spare parts</option>}
             </select>
           </div>
-          <textarea id="comments" name="comments" value={formData.comments} onChange={handleChange} rows={3} />
+          <textarea id="comments" name="comments" value={formData.comments} onChange={handleChange} rows={3} ref={commentInputRef} />
         </div>
 
         <button
