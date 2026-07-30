@@ -1097,7 +1097,8 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
                 "Ticket Printer R/W Failure",
                 "UPS Defect",
                 "Use of banknotes returns to home screen",
-                "Use of POS Returns to Home Screen"
+                "Use of POS Returns to Home Screen",
+                "Wrong change"
               ];
 
               let optionsToShow: string[] = [];
