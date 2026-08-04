@@ -383,7 +383,8 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
       repairProcess: "Restart",
       assignedTo: "Conduent",
       status: "Solved",
-      finalResult: ["OK"]
+      finalResult: ["OK"],
+      comments: "It returns the 20-cent and 10-cent coins incorrectly"
     },
     // ---------> BANKNOTE PARTS ALARMS <---------
     "Red light on banknote acceptor": {
@@ -1256,6 +1257,7 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
               {formData.device === "ATIM" && <option value="All POS terminals in the station froze at the same time on the transaction “Transaction approved”">All POS terminals in the station froze...</option>}
               {formData.device === "GATE" && <option value="Cleaning the SIM card">Cleaning the SIM card</option>}
               {formData.device === "GATE" && <option value="Dump files collected">Dump files collected</option>}
+              {formData.device === "ATIM" && <option value="It returns the 20-cent and 10-cent coins incorrectly">It returns the 20-cent and 10-cent coins incorrectly</option>}
               {formData.device === "ATIM" && <option value="Log files sent to Mellon">Log files sent to Mellon</option>}
               {formData.device === "ATIM" && <option value="POS terminal froze on the “Transaction approved”">POS terminal froze on the “Transaction approved”</option>}
               {formData.device === "ATIM" && <option value="POS terminal froze on the “Transaction canceled”">POS terminal froze on the “Transaction canceled”</option>}
