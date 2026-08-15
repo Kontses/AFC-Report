@@ -259,7 +259,7 @@ export default function ShiftsPage() {
 
     const wb = new ExcelJS.Workbook();
     const ws = wb.addWorksheet("Shifts", {
-      views: [{ showGridLines: true }]
+      views: [{ state: "frozen", xSplit: 1, showGridLines: true }]
     });
 
     // Apply gorgeous layout column widths
