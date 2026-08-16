@@ -1262,11 +1262,13 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
               {formData.device === "ATIM" && <option value="POS terminal froze on the “Transaction approved”">POS terminal froze on the “Transaction approved”</option>}
               {formData.device === "ATIM" && <option value="POS terminal froze on the “Transaction canceled”">POS terminal froze on the “Transaction canceled”</option>}
               {formData.device === "ATIM" && <option value="POS terminal froze on the “Transaction completed”">POS terminal froze on the “Transaction completed”</option>}
+              {formData.device === "ATIM" && <option value="POS terminal froze on the “Welcome">POS terminal froze on the “Welcome”</option>}
               {formData.device === "ATIM" && <option value="Repaired by TRAXIS">Repaired by TRAXIS</option>}
               {formData.device === "ATIM" && <option value="Screen froze on the “Don’t forget your card”">Screen froze on the “Don’t forget your card”</option>}
               {formData.device === "ATIM" && <option value="Screen froze on the “Payment transaction is canceled”">Screen froze on the “Payment transaction is canceled”</option>}
               {formData.device === "ATIM" && <option value="Screen froze on the “Your order is being processed.”">Screen froze on the “Your order is being processed.”</option>}
               {formData.device === "ATIM" && <option value="Screen froze on the card payment method">Screen froze on the “Card payment method”</option>}
+              {formData.device === "ATIM" && <option value="Screen froze on the “Would you like a receipt?”">Screen froze on the “Would you like a receipt?”</option>}
               {<option value="Need spare parts">Need spare parts</option>}
             </select>
           </div>
