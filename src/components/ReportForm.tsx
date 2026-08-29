@@ -439,6 +439,12 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
       status: "Solved",
       finalResult: ["OK"]
     },
+    "The tickets get stuck in the slot": {
+      repairProcess: "Removing the tickets",
+      assignedTo: "TRAXIS ENGINEERING",
+      status: "Solved",
+      finalResult: ["OK"]
+    },
     "Screen Freeze": {
       repairProcess: "Opening ATIM and closing",
       assignedTo: "TRAXIS ENGINEERING",
@@ -1096,6 +1102,7 @@ export default function ReportForm({ isHistoryOpen, onHistoryClose }: ReportForm
                 "SSUP Link Failure",
                 "Touch screen issue",
                 "Ticket Printer R/W Failure",
+                "The tickets get stuck in the slot",
                 "UPS Defect",
                 "Use of banknotes returns to home screen",
                 "Use of POS Returns to Home Screen",
