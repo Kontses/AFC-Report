@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts";
 import { useTheme } from "./ThemeProvider";
@@ -35,7 +35,52 @@ export default function Dashboard3DCharts({ data }: Dashboard3DChartsProps) {
             .map(([name, value]) => ({ name, value }));
     };
 
-    const { stationNames, stationValues, gateData, atimData } = useMemo(() => {
+    const [chartFilters, setChartFilters] = useState({
+        station: null as string | null,
+        date: null as string | null, // format: YYYY-MM-DD
+        malfunction: null as string | null
+    });
+
+    const hasActiveFilters = chartFilters.station || chartFilters.date || chartFilters.malfunction;
+
+    const clearFilters = () => setChartFilters({ station: null, date: null, malfunction: null });
+
+    const { stationNames, stationValues, gateData, atimData, dateNames, dateValues } = useMemo(() => {
+        // --- 0. Προ-φιλτράρισμα βάσει διαδραστικών φίλτρων ---
+        const filteredData = data.filter(r => {
+            if (chartFilters.station && r.Station !== chartFilters.station && r.station !== chartFilters.station) return false;
+            
+            if (chartFilters.date) {
+                const dateStr = r["Date"] || r["reportedDate"];
+                if (!dateStr) return false;
+                try {
+                    let d = new Date(dateStr);
+                    if (isNaN(d.getTime())) {
+                        const parts = dateStr.split(" ")[0].split("/");
+                        if (parts.length === 3) d = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+                    }
+                    if (!isNaN(d.getTime())) {
+                        const yyyy = d.getFullYear();
+                        const mm = String(d.getMonth() + 1).padStart(2, '0');
+                        const dd = String(d.getDate()).padStart(2, '0');
+                        const key = `${yyyy}-${mm}-${dd}`;
+                        if (key !== chartFilters.date) return false;
+                    } else {
+                        return false;
+                    }
+                } catch {
+                    return false;
+                }
+            }
+
+            if (chartFilters.malfunction) {
+                const m = r.Malfunction || "Unknown";
+                if (m !== chartFilters.malfunction) return false;
+            }
+
+            return true;
+        });
+
         // 1. Enforce Station Order
         const STATION_ORDER = [
             "1(NRS)", "2(DMK)", "3(VNZ)", "4(AGS)", "5(SNT)", "6(PNP)",
@@ -43,7 +88,7 @@ export default function Dashboard3DCharts({ data }: Dashboard3DChartsProps) {
         ];
 
         const sCounts: Record<string, number> = {};
-        data.forEach(r => {
+        filteredData.forEach(r => {
             const s = r.Station || "Unknown";
             sCounts[s] = (sCounts[s] || 0) + 1;
         });
@@ -54,7 +99,7 @@ export default function Dashboard3DCharts({ data }: Dashboard3DChartsProps) {
 
         // Gate
         const gCounts: Record<string, number> = {};
-        data.filter(r => r.Device === "GATE").forEach(r => {
+        filteredData.filter(r => r.Device === "GATE").forEach(r => {
             const m = r.Malfunction || "Unknown";
             gCounts[m] = (gCounts[m] || 0) + 1;
         });
@@ -62,19 +107,72 @@ export default function Dashboard3DCharts({ data }: Dashboard3DChartsProps) {
 
         // ATIM
         const aCounts: Record<string, number> = {};
-        data.filter(r => r.Device === "ATIM").forEach(r => {
+        filteredData.filter(r => r.Device === "ATIM").forEach(r => {
             const m = r.Malfunction || "Unknown";
             aCounts[m] = (aCounts[m] || 0) + 1;
         });
         const atimProcessed = processData(aCounts);
 
+        // --- NEW: Υπολογισμός βλαβών ανά ημέρα ---
+        const allDatesSet = new Set<string>();
+        // Get all dates from original data to keep x-axis consistent
+        data.forEach(r => {
+            const dateStr = r["Date"] || r["reportedDate"];
+            if (dateStr) {
+                try {
+                    let d = new Date(dateStr);
+                    if (isNaN(d.getTime())) {
+                        const parts = dateStr.split(" ")[0].split("/");
+                        if (parts.length === 3) d = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+                    }
+                    if (!isNaN(d.getTime())) {
+                        const yyyy = d.getFullYear();
+                        const mm = String(d.getMonth() + 1).padStart(2, '0');
+                        const dd = String(d.getDate()).padStart(2, '0');
+                        allDatesSet.add(`${yyyy}-${mm}-${dd}`);
+                    }
+                } catch { }
+            }
+        });
+
+        const filteredDCounts: Record<string, number> = {};
+        filteredData.forEach(r => {
+            const dateStr = r["Date"] || r["reportedDate"];
+            if (dateStr) {
+                try {
+                    let d = new Date(dateStr);
+                    if (isNaN(d.getTime())) {
+                        const parts = dateStr.split(" ")[0].split("/");
+                        if (parts.length === 3) d = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+                    }
+                    if (!isNaN(d.getTime())) {
+                        const yyyy = d.getFullYear();
+                        const mm = String(d.getMonth() + 1).padStart(2, '0');
+                        const dd = String(d.getDate()).padStart(2, '0');
+                        const key = `${yyyy}-${mm}-${dd}`;
+                        filteredDCounts[key] = (filteredDCounts[key] || 0) + 1;
+                    }
+                } catch { }
+            }
+        });
+
+        const sortedDates = Array.from(allDatesSet).sort();
+        // Μετατροπή σε DD/MM/YYYY για τον άξονα Χ
+        const dateNames = sortedDates.map(date => {
+            const [y, m, d] = date.split('-');
+            return `${d}/${m}/${y}`;
+        });
+        const dateValues = sortedDates.map(date => filteredDCounts[date] || 0);
+
         return {
             stationNames: stations,
             stationValues: sValues,
             gateData: gateProcessed,
-            atimData: atimProcessed
+            atimData: atimProcessed,
+            dateNames: dateNames,
+            dateValues: dateValues
         };
-    }, [data]);
+    }, [data, chartFilters]);
 
     // --- CHART 1: STATION (Premium Gradient Bar) ---
     const barOption = {
@@ -132,6 +230,49 @@ export default function Dashboard3DCharts({ data }: Dashboard3DChartsProps) {
         ]
     };
 
+    // --- CHART 1.5: ΜΑΛΦΥΝΚΤΙΟΝΣ ΠΕΡ ΝΤΑΥ (Line Chart) ---
+    const lineOption = {
+        backgroundColor: 'transparent',
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'line' },
+            backgroundColor: tooltipBg,
+            borderColor: tooltipBorder,
+            textStyle: { color: textColor }
+        },
+        grid: { left: '3%', right: '4%', bottom: '5%', containLabel: true },
+        xAxis: {
+            type: 'category',
+            data: dateNames,
+            axisLabel: { color: subTextColor, rotate: 45, fontSize: 11 },
+            axisLine: { lineStyle: { color: gridColor } },
+            axisTick: { show: false }
+        },
+        yAxis: {
+            type: 'value',
+            axisLabel: { color: subTextColor },
+            splitLine: { lineStyle: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', type: 'dashed' } }
+        },
+        series: [
+            {
+                name: 'Βλάβες',
+                type: 'line',
+                smooth: true,
+                symbol: 'circle',
+                symbolSize: 8,
+                itemStyle: { color: '#8b5cf6' }, // Μωβ χρώμα για να ξεχωρίζει
+                lineStyle: { width: 3, color: '#8b5cf6' },
+                areaStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        { offset: 0, color: 'rgba(139, 92, 246, 0.4)' },
+                        { offset: 1, color: 'rgba(139, 92, 246, 0.0)' }
+                    ])
+                },
+                data: dateValues
+            }
+        ]
+    };
+
     // --- CHART 2 & 3: PIE (3D Donut style) ---
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const getPieOption = (data: any[]) => {
@@ -156,6 +297,7 @@ export default function Dashboard3DCharts({ data }: Dashboard3DChartsProps) {
                 }
             },
             legend: {
+                selectedMode: false,
                 type: 'scroll',
                 orient: 'vertical',
                 left: '48%', // Ensure the legend starts to the right of the pie chart
@@ -232,8 +374,55 @@ export default function Dashboard3DCharts({ data }: Dashboard3DChartsProps) {
 
 
 
+    // --- EVENT HANDLERS ---
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleStationClick = (params: any) => {
+        if (params.name) {
+            setChartFilters(prev => ({ ...prev, station: prev.station === params.name ? null : params.name }));
+        }
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleDateClick = (params: any) => {
+        if (params.name) {
+            const [d, m, y] = params.name.split('/');
+            const key = `${y}-${m}-${d}`;
+            setChartFilters(prev => ({ ...prev, date: prev.date === key ? null : key }));
+        }
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleMalfunctionClick = (params: any) => {
+        if (params.name) {
+            setChartFilters(prev => ({ ...prev, malfunction: prev.malfunction === params.name ? null : params.name }));
+        }
+    };
+
     return (
         <div className="charts-container" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            
+            {hasActiveFilters && (
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '-1rem' }}>
+                    <button 
+                        onClick={clearFilters}
+                        style={{
+                            background: "rgba(230, 57, 70, 0.1)",
+                            color: "#e63946",
+                            border: `1px solid rgba(230, 57, 70, 0.3)`,
+                            padding: "0.5rem 1rem",
+                            borderRadius: "8px",
+                            cursor: "pointer",
+                            fontSize: "0.85rem",
+                            fontWeight: "600",
+                            transition: "all 0.2s",
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = "rgba(230, 57, 70, 0.2)"}
+                        onMouseLeave={(e) => e.currentTarget.style.background = "rgba(230, 57, 70, 0.1)"}
+                    >
+                        Καθαρισμός Φίλτρων Γραφημάτων
+                    </button>
+                </div>
+            )}
 
             {/* 1. Station Bar Chart */}
             <div className="glass-panel"
@@ -248,7 +437,23 @@ export default function Dashboard3DCharts({ data }: Dashboard3DChartsProps) {
                     <div style={{ width: '4px', height: '24px', background: '#f59e0b', borderRadius: '2px' }}></div>
                     Malfunctions/Station
                 </h3>
-                <ReactECharts option={barOption} style={{ height: '350px' }} theme={isDark ? "dark" : undefined} />
+                <ReactECharts option={barOption} onEvents={{ 'click': handleStationClick }} style={{ height: '350px' }} theme={isDark ? "dark" : undefined} />
+            </div>
+
+            {/* 1.5. Γράφημα γραμμής για Βλάβες/Ημέρα */}
+            <div className="glass-panel"
+                style={{
+                    padding: '1.5rem',
+                    borderRadius: '20px',
+                    background: cardBg,
+                    border: `1px solid ${cardBorder}`,
+                    boxShadow: cardShadow
+                }}>
+                <h3 style={{ color: textColor, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '1.1rem' }}>
+                    <div style={{ width: '4px', height: '24px', background: '#8b5cf6', borderRadius: '2px' }}></div>
+                    Malfunctions/Day
+                </h3>
+                <ReactECharts option={lineOption} onEvents={{ 'click': handleDateClick }} style={{ height: '350px' }} theme={isDark ? "dark" : undefined} />
             </div>
 
             {/* 2. Grid for Pies */}
@@ -267,7 +472,7 @@ export default function Dashboard3DCharts({ data }: Dashboard3DChartsProps) {
                         <div style={{ width: '4px', height: '24px', background: '#3b82f6', borderRadius: '2px' }}></div>
                         Gate Malfunctions
                     </h3>
-                    <ReactECharts option={getPieOption(gateData)} style={{ height: '380px' }} />
+                    <ReactECharts option={getPieOption(gateData)} onEvents={{ 'click': handleMalfunctionClick }} style={{ height: '380px' }} />
                 </div>
 
                 {/* ATIM Pie */}
@@ -283,7 +488,7 @@ export default function Dashboard3DCharts({ data }: Dashboard3DChartsProps) {
                         <div style={{ width: '4px', height: '24px', background: '#10b981', borderRadius: '2px' }}></div>
                         ATIM Malfunctions
                     </h3>
-                    <ReactECharts option={getPieOption(atimData)} style={{ height: '380px' }} />
+                    <ReactECharts option={getPieOption(atimData)} onEvents={{ 'click': handleMalfunctionClick }} style={{ height: '380px' }} />
                 </div>
 
             </div>
