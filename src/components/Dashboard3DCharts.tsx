@@ -35,7 +35,7 @@ export default function Dashboard3DCharts({ data }: Dashboard3DChartsProps) {
             .map(([name, value]) => ({ name, value }));
     };
 
-    const { stationNames, stationValues, gateData, atimData } = useMemo(() => {
+    const { stationNames, stationValues, gateData, atimData, dateNames, dateValues } = useMemo(() => {
         // 1. Enforce Station Order
         const STATION_ORDER = [
             "1(NRS)", "2(DMK)", "3(VNZ)", "4(AGS)", "5(SNT)", "6(PNP)",
@@ -68,11 +68,47 @@ export default function Dashboard3DCharts({ data }: Dashboard3DChartsProps) {
         });
         const atimProcessed = processData(aCounts);
 
+        // --- NEW: Υπολογισμός βλαβών ανά ημέρα ---
+        const dCounts: Record<string, number> = {};
+        data.forEach(r => {
+            const dateStr = r["Date"] || r["reportedDate"];
+            if (dateStr) {
+                try {
+                    let d = new Date(dateStr);
+                    if (isNaN(d.getTime())) {
+                        const parts = dateStr.split(" ")[0].split("/");
+                        if (parts.length === 3) d = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+                    }
+                    if (!isNaN(d.getTime())) {
+                        // Μορφοποίηση σε YYYY-MM-DD για σωστή ταξινόμηση
+                        const yyyy = d.getFullYear();
+                        const mm = String(d.getMonth() + 1).padStart(2, '0');
+                        const dd = String(d.getDate()).padStart(2, '0');
+                        const key = `${yyyy}-${mm}-${dd}`;
+                        dCounts[key] = (dCounts[key] || 0) + 1;
+                    }
+                } catch {
+                    // Αγνοούμε λανθασμένες ημερομηνίες
+                }
+            }
+        });
+
+        // Ταξινόμηση ανά ημερομηνία
+        const sortedDates = Object.keys(dCounts).sort();
+        // Μετατροπή σε DD/MM/YYYY για τον άξονα Χ
+        const dateNames = sortedDates.map(date => {
+            const [y, m, d] = date.split('-');
+            return `${d}/${m}/${y}`;
+        });
+        const dateValues = sortedDates.map(date => dCounts[date]);
+
         return {
             stationNames: stations,
             stationValues: sValues,
             gateData: gateProcessed,
-            atimData: atimProcessed
+            atimData: atimProcessed,
+            dateNames: dateNames,
+            dateValues: dateValues
         };
     }, [data]);
 
@@ -128,6 +164,49 @@ export default function Dashboard3DCharts({ data }: Dashboard3DChartsProps) {
                     color: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0,0,0,0.03)',
                     borderRadius: [6, 6, 0, 0]
                 }
+            }
+        ]
+    };
+
+    // --- CHART 1.5: ΜΑΛΦΥΝΚΤΙΟΝΣ ΠΕΡ ΝΤΑΥ (Line Chart) ---
+    const lineOption = {
+        backgroundColor: 'transparent',
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'line' },
+            backgroundColor: tooltipBg,
+            borderColor: tooltipBorder,
+            textStyle: { color: textColor }
+        },
+        grid: { left: '3%', right: '4%', bottom: '5%', containLabel: true },
+        xAxis: {
+            type: 'category',
+            data: dateNames,
+            axisLabel: { color: subTextColor, rotate: 45, fontSize: 11 },
+            axisLine: { lineStyle: { color: gridColor } },
+            axisTick: { show: false }
+        },
+        yAxis: {
+            type: 'value',
+            axisLabel: { color: subTextColor },
+            splitLine: { lineStyle: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', type: 'dashed' } }
+        },
+        series: [
+            {
+                name: 'Βλάβες',
+                type: 'line',
+                smooth: true,
+                symbol: 'circle',
+                symbolSize: 8,
+                itemStyle: { color: '#8b5cf6' }, // Μωβ χρώμα για να ξεχωρίζει
+                lineStyle: { width: 3, color: '#8b5cf6' },
+                areaStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        { offset: 0, color: 'rgba(139, 92, 246, 0.4)' },
+                        { offset: 1, color: 'rgba(139, 92, 246, 0.0)' }
+                    ])
+                },
+                data: dateValues
             }
         ]
     };
@@ -249,6 +328,22 @@ export default function Dashboard3DCharts({ data }: Dashboard3DChartsProps) {
                     Malfunctions/Station
                 </h3>
                 <ReactECharts option={barOption} style={{ height: '350px' }} theme={isDark ? "dark" : undefined} />
+            </div>
+
+            {/* 1.5. Γράφημα γραμμής για Βλάβες/Ημέρα */}
+            <div className="glass-panel"
+                style={{
+                    padding: '1.5rem',
+                    borderRadius: '20px',
+                    background: cardBg,
+                    border: `1px solid ${cardBorder}`,
+                    boxShadow: cardShadow
+                }}>
+                <h3 style={{ color: textColor, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '1.1rem' }}>
+                    <div style={{ width: '4px', height: '24px', background: '#8b5cf6', borderRadius: '2px' }}></div>
+                    Malfunctions/Day
+                </h3>
+                <ReactECharts option={lineOption} style={{ height: '350px' }} theme={isDark ? "dark" : undefined} />
             </div>
 
             {/* 2. Grid for Pies */}
