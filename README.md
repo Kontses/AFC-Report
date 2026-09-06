@@ -38,8 +38,3 @@
 - `/src/app/dashboard/page.tsx` - Ο πίνακας ελέγχου (analytics).
 - `/src/lib/storage.ts` - Λογική τοπικής αποθήκευσης (offline capabilities).
 - `/src/app/api/` - API routes που λειτουργούν ως proxy προς το Google Script.
-
-## 🔗 Χρήσιμοι Σύνδεσμοι
-
-- **Κύριο Εργαλείο Αναφοράς**: [https://afc-report.vercel.app/](https://afc-report.vercel.app/)
-- **Dashboard**: [https://afc-report.vercel.app/dashboard](https://afc-report.vercel.app/dashboard)
